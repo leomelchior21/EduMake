@@ -243,11 +243,11 @@ REGRAS ABSOLUTAS — TODAS AS SEÇÕES SÃO OBRIGATÓRIAS:
 - apps_alternativos: EXATAMENTE 3 ferramentas DIFERENTES de "${toolName}"
 - registro: EXATAMENTE 3 dicas de como os alunos documentam o aprendizado (portfólio digital, diário, foto, etc.)
 - avaliacao: OBRIGATÓRIO — método + EXATAMENTE 3 critérios objetivos focados no processo
-- ficha: ficha impressa para os alunos — título curto, instrução em 1 frase imperativa, 3 áreas com label (ex: "O que aprendi") e guia do que o aluno escreve
+- ficha: FICHA INVESTIGATIVA — segue obrigatoriamente o ciclo de investigação: (1) hipótese antes de começar, (2) o que investigou/observou durante, (3) conclusão + nova dúvida gerada. A questao_central deve ser uma pergunta genuinamente curiosa e provocadora que instigue o aluno a investigar — NÃO uma afirmação, sempre uma pergunta. As áreas devem ter labels e guias contextualizados ao tema específico da aula, não genéricos.
 - NÃO omita nenhuma dessas chaves do JSON — todas são obrigatórias
 
 FORMATO EXATO (copie esta estrutura exatamente):
-{"passos":[{"num":1,"titulo":"titulo curto","instrucao":"instrucao usando ${toolName}"},{"num":2,"titulo":"...","instrucao":"..."},{"num":3,"titulo":"...","instrucao":"..."},{"num":4,"titulo":"...","instrucao":"..."},{"num":5,"titulo":"...","instrucao":"..."}],"atencao":"dificuldade principal em 1 frase","interdisciplinar":[{"disciplina":"nome","emoji":"emoji","conexao":"conexao concreta"},{"disciplina":"...","emoji":"...","conexao":"..."},{"disciplina":"...","emoji":"...","conexao":"..."}],"apps_alternativos":[{"nome":"nome exato","emoji":"emoji","diferencial":"diferencial em 1 frase"},{"nome":"...","emoji":"...","diferencial":"..."},{"nome":"...","emoji":"...","diferencial":"..."}],"registro":["dica 1 de como o aluno documenta o aprendizado","dica 2","dica 3"],"avaliacao":{"metodo":"nome do método","criterios":["critério 1 com descritor","critério 2 com descritor","critério 3 com descritor"]},"ficha":{"titulo":"título da ficha","instrucao":"Instrução para o aluno em 1 frase imperativa","areas":[{"label":"Área 1 — ex: O que aprendi","guia":"o que o aluno escreve aqui"},{"label":"Área 2 — ex: Minhas dúvidas","guia":"..."},{"label":"Área 3 — ex: O que ainda quero descobrir","guia":"..."}]}}`;
+{"passos":[{"num":1,"titulo":"titulo curto","instrucao":"instrucao usando ${toolName}"},{"num":2,"titulo":"...","instrucao":"..."},{"num":3,"titulo":"...","instrucao":"..."},{"num":4,"titulo":"...","instrucao":"..."},{"num":5,"titulo":"...","instrucao":"..."}],"atencao":"dificuldade principal em 1 frase","interdisciplinar":[{"disciplina":"nome","emoji":"emoji","conexao":"conexao concreta"},{"disciplina":"...","emoji":"...","conexao":"..."},{"disciplina":"...","emoji":"...","conexao":"..."}],"apps_alternativos":[{"nome":"nome exato","emoji":"emoji","diferencial":"diferencial em 1 frase"},{"nome":"...","emoji":"...","diferencial":"..."},{"nome":"...","emoji":"...","diferencial":"..."}],"registro":["dica 1 de como o aluno documenta o aprendizado","dica 2","dica 3"],"avaliacao":{"metodo":"nome do método","criterios":["critério 1 com descritor","critério 2 com descritor","critério 3 com descritor"]},"ficha":{"titulo":"título curto da ficha investigativa contextualizado ao tema","questao_central":"Pergunta investigativa provocadora e genuína sobre o tema específico?","areas":[{"label":"🔍 Minha hipótese","guia":"Antes de começar: o que você acha que vai descobrir sobre [tema específico]? Escreva sua previsão."},{"label":"🧪 O que investigui","guia":"Durante a atividade: o que você fez, observou ou descobriu usando ${toolName}? Descreva com detalhes."},{"label":"💡 O que aprendi — e o que ainda quero descobrir","guia":"Conclusão: o que ficou claro para você? Que nova dúvida ou curiosidade surgiu?"}]}}`;
 
   try {
     const resp = await fetch(DEEPSEEK_URL, {
@@ -306,13 +306,15 @@ function renderDeepening(idea, deep) {
   if (deep.ficha) {
     const f = deep.ficha;
     h+=`<div class="deep-section deep-ficha">
-      <h4>📄 Ficha para imprimir</h4>
+      <h4>🔬 Ficha investigativa para imprimir</h4>
       <div class="ficha-preview">
+        <div class="ficha-preview-eyebrow">Ciclo de investigação</div>
         <div class="ficha-preview-title">${esc(f.titulo)}</div>
-        <div class="ficha-preview-instrucao">📝 ${esc(f.instrucao)}</div>
-        <div class="ficha-preview-areas">${(f.areas||[]).slice(0,3).map(a=>`
-          <div class="ficha-area-preview">
+        ${f.questao_central?`<div class="ficha-questao"><span class="ficha-questao-lbl">Questão norteadora</span><span class="ficha-questao-text">${esc(f.questao_central)}</span></div>`:''}
+        <div class="ficha-preview-areas">${(f.areas||[]).slice(0,3).map((a,i)=>`
+          <div class="ficha-area-preview ficha-phase-${i+1}">
             <div class="ficha-area-label">${esc(a.label)}</div>
+            <div class="ficha-area-guia">${esc(a.guia)}</div>
             <div class="ficha-area-lines"></div>
           </div>`).join('')}
         </div>
@@ -401,38 +403,68 @@ function renderDeepening(idea, deep) {
   document.getElementById('rov-sub').textContent=`${idea.tool} · ${idea.title}`;
 }
 
-// ── FICHA IMPRESSA ────────────────────────────────────────
+// ── FICHA INVESTIGATIVA IMPRESSA ──────────────────────────
 function printFicha() {
   const f = currentFicha;
   if (!f) return;
   const ideaTitle = currentDeepeningIdea?.title || 'Aula';
-  const w = window.open('', '_blank', 'width=820,height=720');
-  const areasHtml = (f.areas||[]).slice(0,3).map(a=>`
-    <div class="area">
-      <div class="area-label">${a.label||''}</div>
+  const nivel = currentResultData?.nivel || '';
+  const PHASE_COLORS = ['#5c4ef0','#d4426b','#0a8f7a'];
+  const PHASE_LIGHT  = ['#ede9ff','#fce8ef','#e0f7f3'];
+  const areasHtml = (f.areas||[]).slice(0,3).map((a,i)=>`
+    <div class="area" style="border-color:${PHASE_COLORS[i]}30;--ph:${PHASE_COLORS[i]};--phl:${PHASE_LIGHT[i]}">
+      <div class="area-header">
+        <div class="area-step">Etapa ${i+1}</div>
+        <div class="area-label">${a.label||''}</div>
+      </div>
       <div class="area-guide">${a.guia||''}</div>
       <div class="area-lines"></div>
     </div>`).join('');
+  w = window.open('','_blank','width=820,height=760');
   w.document.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"/><title>${f.titulo}</title><style>
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Segoe UI',Arial,sans-serif;max-width:680px;margin:30px auto;color:#1a1a2e;padding:0 20px}
-  .header{border-bottom:3px solid #7c6ff7;padding-bottom:12px;margin-bottom:20px}
-  .eyebrow{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#7c6ff7;margin-bottom:5px}
-  h1{font-size:1.25rem;font-weight:800;color:#1a1a2e}
-  .subtitle{font-size:.72rem;color:#888;margin-top:3px}
-  .instrucao{font-size:.85rem;color:#444;margin-bottom:22px;padding:10px 14px;background:#f5f3ff;border-left:3px solid #7c6ff7;border-radius:0 6px 6px 0;line-height:1.5}
-  .area{border:1.5px solid #ddd;border-radius:10px;padding:14px 16px;margin-bottom:14px}
-  .area-label{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#7c6ff7;margin-bottom:3px}
-  .area-guide{font-size:.75rem;color:#999;font-style:italic;margin-bottom:11px}
-  .area-lines{height:100px;background:repeating-linear-gradient(transparent,transparent 27px,#e8e8e8 27px,#e8e8e8 28px)}
-  .footer{margin-top:24px;font-size:.6rem;color:#bbb;text-align:center;border-top:1px solid #eee;padding-top:10px}
-  @media print{body{margin:10mm 15mm}}
+  body{font-family:'Segoe UI',Arial,sans-serif;max-width:700px;margin:24px auto;color:#18182a;padding:0 22px;font-size:14px}
+  /* HEADER */
+  .header{margin-bottom:18px;padding-bottom:14px;border-bottom:2px solid #18182a}
+  .header-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+  .eyebrow{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#5c4ef0}
+  .id-fields{display:flex;gap:20px}
+  .id-field{font-size:10px;color:#888;border-bottom:1px solid #ccc;padding-bottom:2px;min-width:110px}
+  h1{font-size:17px;font-weight:900;color:#18182a;line-height:1.2;margin-bottom:4px}
+  .meta{font-size:10px;color:#888}
+  /* QUESTÃO */
+  .questao{background:#f0edff;border:1.5px solid #5c4ef0;border-radius:8px;padding:11px 14px;margin-bottom:16px}
+  .questao-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#5c4ef0;margin-bottom:4px}
+  .questao-text{font-size:13px;font-weight:700;color:#18182a;line-height:1.45}
+  /* AREAS */
+  .area{border:1.5px solid #ddd;border-radius:10px;margin-bottom:12px;overflow:hidden}
+  .area-header{background:var(--phl,#f5f5ff);padding:8px 13px;border-bottom:1.5px solid var(--ph,#5c4ef0)30}
+  .area-step{font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--ph,#5c4ef0);margin-bottom:2px}
+  .area-label{font-size:11.5px;font-weight:800;color:#18182a}
+  .area-guide{font-size:10.5px;color:#666;font-style:italic;padding:8px 13px 6px;line-height:1.5}
+  .area-lines{padding:0 13px 10px;height:108px;background:repeating-linear-gradient(transparent,transparent 26px,#e5e5e5 26px,#e5e5e5 27px);margin:0 13px 10px}
+  /* FOOTER */
+  .footer{margin-top:18px;font-size:9px;color:#bbb;text-align:center;border-top:1px solid #eee;padding-top:8px;display:flex;justify-content:space-between}
+  @media print{body{margin:8mm 14mm}@page{margin:10mm}}
   </style></head><body>
-  <div class="header"><div class="eyebrow">EduMake · Ficha de atividade</div><h1>${f.titulo}</h1><div class="subtitle">Aula: ${ideaTitle}</div></div>
-  <div class="instrucao">📝 ${f.instrucao}</div>
+  <div class="header">
+    <div class="header-top">
+      <div class="eyebrow">🔬 EduMake · Ficha investigativa${nivel?' · '+nivel:''}</div>
+      <div class="id-fields">
+        <div class="id-field">Nome: ___________________</div>
+        <div class="id-field">Data: __________</div>
+      </div>
+    </div>
+    <h1>${f.titulo}</h1>
+    <div class="meta">Atividade: ${ideaTitle}</div>
+  </div>
+  ${f.questao_central?`<div class="questao"><div class="questao-lbl">🔍 Questão norteadora</div><div class="questao-text">${f.questao_central}</div></div>`:''}
   ${areasHtml}
-  <div class="footer">Gerado pelo EduMake — Personalizado para sua turma</div>
-  <script>setTimeout(()=>window.print(),400)</script>
+  <div class="footer">
+    <span>Gerado pelo EduMake — edumake para professores</span>
+    <span>Ciclo investigativo: Hipótese → Investigação → Conclusão</span>
+  </div>
+  <script>setTimeout(()=>window.print(),420)</script>
   </body></html>`);
   w.document.close();
 }

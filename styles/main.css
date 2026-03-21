@@ -471,16 +471,26 @@ a.itool-chip:hover{background:rgba(124,111,247,.22);border-color:rgba(124,111,24
 .swap-pick-name{font-size:.8rem;font-weight:600;color:var(--text)}
 .swap-pick-cat{font-size:.68rem;color:var(--dim)}
 .swap-pick-cta{font-size:.72rem;font-weight:700;color:#7de8d8;flex-shrink:0}
-/* ── FICHA IMPRESSA ──────────────────────────────────────── */
+/* ── FICHA INVESTIGATIVA ─────────────────────────────────── */
 .deep-ficha{border-color:rgba(124,111,247,.28)!important;background:rgba(124,111,247,.04)!important}
 .deep-ficha h4{color:#c4bffe}
 .ficha-preview{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:11px;padding:14px 16px;margin-bottom:14px}
-.ficha-preview-title{font-family:var(--fd);font-size:.95rem;font-weight:800;color:var(--text);margin-bottom:6px}
-.ficha-preview-instrucao{font-size:.76rem;color:var(--muted);font-style:italic;margin-bottom:12px;padding:7px 10px;background:rgba(124,111,247,.07);border-left:2px solid rgba(124,111,247,.4);border-radius:0 6px 6px 0;line-height:1.5}
-.ficha-preview-areas{display:flex;flex-direction:column;gap:7px}
-.ficha-area-preview{border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:9px 12px}
-.ficha-area-label{font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:rgba(124,111,247,.75);margin-bottom:7px}
-.ficha-area-lines{height:26px;background:repeating-linear-gradient(transparent,transparent 12px,rgba(255,255,255,.06) 12px,rgba(255,255,255,.06) 13px);border-radius:3px}
+.ficha-preview-eyebrow{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:rgba(124,111,247,.6);margin-bottom:4px}
+.ficha-preview-title{font-family:var(--fd);font-size:.95rem;font-weight:800;color:var(--text);margin-bottom:10px}
+.ficha-questao{background:rgba(124,111,247,.09);border:1px solid rgba(124,111,247,.3);border-radius:9px;padding:9px 12px;margin-bottom:12px}
+.ficha-questao-lbl{display:block;font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:rgba(124,111,247,.7);margin-bottom:3px}
+.ficha-questao-text{font-size:.8rem;font-weight:600;color:#c4bffe;line-height:1.5;font-style:italic}
+.ficha-preview-areas{display:flex;flex-direction:column;gap:6px}
+.ficha-area-preview{border-radius:8px;padding:8px 11px}
+.ficha-phase-1{background:rgba(124,111,247,.08);border:1px solid rgba(124,111,247,.2)}
+.ficha-phase-2{background:rgba(232,111,160,.07);border:1px solid rgba(232,111,160,.2)}
+.ficha-phase-3{background:rgba(61,216,196,.07);border:1px solid rgba(61,216,196,.2)}
+.ficha-area-label{font-size:.68rem;font-weight:800;color:var(--text);margin-bottom:3px}
+.ficha-phase-1 .ficha-area-label{color:#c4bffe}
+.ficha-phase-2 .ficha-area-label{color:#f0a8c2}
+.ficha-phase-3 .ficha-area-label{color:#7de8d8}
+.ficha-area-guia{font-size:.68rem;color:var(--dim);font-style:italic;line-height:1.45;margin-bottom:6px}
+.ficha-area-lines{height:18px;background:repeating-linear-gradient(transparent,transparent 8px,rgba(255,255,255,.06) 8px,rgba(255,255,255,.06) 9px);border-radius:3px}
 .ficha-print-btn{width:100%;padding:13px;border-radius:13px;background:linear-gradient(135deg,var(--accent),#5a52d5);border:none;color:#fff;font-family:var(--fd);font-size:.9rem;font-weight:700;cursor:pointer;letter-spacing:.02em;box-shadow:0 6px 24px rgba(124,111,247,.35);animation:cta-pulse 2s ease-in-out infinite;transition:transform .2s,box-shadow .2s}
 .ficha-print-btn:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(124,111,247,.5);animation:none}
 /* ── DROPDOWN MÉTODO AVALIATIVO ──────────────────────────── */
