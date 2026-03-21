@@ -112,7 +112,13 @@ function renderResult(data) {
 
   if (data.ideas?.length) {
     const toolsUsed = [...new Map(data.ideas.map(i=>[i.tool, i])).values()];
-    let toolChips = toolsUsed.map(i=>`<span class="itool-chip">${i.tool_emoji||'🔧'} ${esc(i.tool)}</span>`).join('');
+    let toolChips = toolsUsed.map(i=>{
+      const td = TOOLS.find(t=>t.tool.toLowerCase()===i.tool.toLowerCase());
+      const href = td?.link;
+      return href
+        ? `<a class="itool-chip" href="${esc(href)}" target="_blank" rel="noopener" title="Abrir ${esc(i.tool)}">${i.tool_emoji||'🔧'} ${esc(i.tool)} ↗</a>`
+        : `<span class="itool-chip">${i.tool_emoji||'🔧'} ${esc(i.tool)}</span>`;
+    }).join('');
 
     h+=`<div class="ai-section">
       <h4>💡 5 Ideias pra sua aula</h4>
@@ -194,16 +200,17 @@ async function _runDeepening(idea) {
 FERRAMENTAS DISPONÍVEIS (para alternativas — devem ser DIFERENTES de "${toolName}"):
 ${JSON.stringify(tools.slice(0,40))}
 
-REGRAS:
+REGRAS ABSOLUTAS — TODAS AS SEÇÕES SÃO OBRIGATÓRIAS:
 - Responda APENAS com JSON puro, sem markdown, sem backticks
-- apps_alternativos: 3 ferramentas DIFERENTES de "${toolName}"
-- interdisciplinar: 3 disciplinas com atividades concretas
-- passos: 5 a 7 passos claros usando ${toolName}
-- registro: 3 dicas curtas e práticas de como os alunos podem documentar o aprendizado (portfólio, diário, foto, etc.)
-- avaliacao: método de avaliação + 3 critérios objetivos com foco no processo, não só no resultado
+- passos: EXATAMENTE 5 passos (não mais) usando ${toolName}
+- interdisciplinar: EXATAMENTE 3 disciplinas com conexão concreta
+- apps_alternativos: EXATAMENTE 3 ferramentas DIFERENTES de "${toolName}"
+- registro: EXATAMENTE 3 dicas de como os alunos documentam o aprendizado (portfólio digital, diário, foto, etc.)
+- avaliacao: OBRIGATÓRIO — método + EXATAMENTE 3 critérios objetivos focados no processo
+- NÃO omita nenhuma dessas chaves do JSON — todas são obrigatórias
 
-FORMATO EXATO:
-{"passos":[{"num":1,"titulo":"titulo curto","instrucao":"instrucao especifica usando ${toolName}"},{"num":2,"titulo":"...","instrucao":"..."}],"atencao":"dificuldade principal em 1-2 frases diretas","interdisciplinar":[{"disciplina":"nome","emoji":"emoji","conexao":"atividade concreta"},{"disciplina":"...","emoji":"...","conexao":"..."},{"disciplina":"...","emoji":"...","conexao":"..."}],"apps_alternativos":[{"nome":"nome exato","emoji":"emoji","diferencial":"diferencial único em 1 frase"},{"nome":"...","emoji":"...","diferencial":"..."},{"nome":"...","emoji":"...","diferencial":"..."}],"registro":["dica 1 de documentação do aluno","dica 2","dica 3"],"avaliacao":{"metodo":"nome do método de avaliação","criterios":["critério 1 com descritor","critério 2 com descritor","critério 3 com descritor"]}}`;
+FORMATO EXATO (copie esta estrutura exatamente):
+{"passos":[{"num":1,"titulo":"titulo curto","instrucao":"instrucao usando ${toolName}"},{"num":2,"titulo":"...","instrucao":"..."},{"num":3,"titulo":"...","instrucao":"..."},{"num":4,"titulo":"...","instrucao":"..."},{"num":5,"titulo":"...","instrucao":"..."}],"atencao":"dificuldade principal em 1 frase","interdisciplinar":[{"disciplina":"nome","emoji":"emoji","conexao":"conexao concreta"},{"disciplina":"...","emoji":"...","conexao":"..."},{"disciplina":"...","emoji":"...","conexao":"..."}],"apps_alternativos":[{"nome":"nome exato","emoji":"emoji","diferencial":"diferencial em 1 frase"},{"nome":"...","emoji":"...","diferencial":"..."},{"nome":"...","emoji":"...","diferencial":"..."}],"registro":["dica 1 de como o aluno documenta o aprendizado","dica 2","dica 3"],"avaliacao":{"metodo":"nome do método","criterios":["critério 1 com descritor","critério 2 com descritor","critério 3 com descritor"]}}`;
 
   try {
     const resp = await fetch(DEEPSEEK_URL, {
@@ -212,7 +219,7 @@ FORMATO EXATO:
       body: JSON.stringify({
         model: 'deepseek-chat',
         messages: [{ role: 'system', content: sys }, { role: 'user', content: queryCtx }],
-        max_tokens: 1600,
+        max_tokens: 2400,
         temperature: 0.4
       })
     });

@@ -415,7 +415,9 @@ footer span{color:var(--muted)}
 .idea-arrow{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:8px;background:rgba(124,111,247,.1);border:1px solid rgba(124,111,247,.2);color:#a99ff8;font-size:.72rem;font-weight:600;flex-shrink:0;margin-top:auto;white-space:nowrap;transition:all .2s;align-self:flex-end}
 .idea-card:hover .idea-arrow{background:rgba(124,111,247,.2);border-color:rgba(124,111,247,.4);transform:translateX(2px)}
 .ideas-tools-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.07)}
-.itool-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:100px;background:rgba(124,111,247,.1);border:1px solid rgba(124,111,247,.22);font-size:.72rem;color:#c4bffe;font-weight:600;font-family:var(--fb)}
+.itool-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:100px;background:rgba(124,111,247,.1);border:1px solid rgba(124,111,247,.22);font-size:.72rem;color:#c4bffe;font-weight:600;font-family:var(--fb);text-decoration:none;transition:all .2s}
+a.itool-chip{cursor:pointer}
+a.itool-chip:hover{background:rgba(124,111,247,.22);border-color:rgba(124,111,247,.45);transform:translateY(-1px);box-shadow:0 4px 14px rgba(124,111,247,.2)}
 /* DEEPENING VIEW */
 .deep-back{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid var(--border);cursor:pointer;font-size:.78rem;color:var(--muted);transition:all .2s;width:fit-content}
 .deep-back:hover{background:var(--surface2);color:var(--text)}
