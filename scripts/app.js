@@ -3,6 +3,38 @@ let currentMode = 'nl';
 let currentResultData = null;
 let currentModalTool = null;
 let currentDeepeningIdea = null;
+let currentFicha = null;
+let _loadingTimer = null;
+
+const AVAL_METHODS = [
+  'Rubrica de processo','Portfólio digital','Autoavaliação',
+  'Avaliação por pares','Observação direta','Checklist de competências',
+  'Diário de aprendizagem','Registro fotográfico avaliativo'
+];
+
+// ── PROGRESSIVE COFFEE LOADING ─────────────────────────────
+const _COFFEE_PHASES = [
+  { cls:'',         sub:'buscando as melhores ferramentas ☕' },
+  { cls:'coffee-brew', sub:'organizando as ideias pra você ✨' },
+  { cls:'coffee-done', sub:'últimos retoques, quase pronto 🎯' }
+];
+function _coffeeHTML(cls, msg, sub) {
+  return `<div class="ai-loading"><div class="coffee-wrap ${cls}"><div class="coffee-steam"><div class="steam"></div><div class="steam"></div><div class="steam"></div></div><div class="coffee-cup"><div class="coffee-liquid"></div></div></div><p>${msg}<span class="dots"></span><br/><span style="font-size:.74rem;color:var(--dim)">${sub}</span></p></div>`;
+}
+function showLoading(el, msg, sub0) {
+  if (_loadingTimer) { clearInterval(_loadingTimer); _loadingTimer = null; }
+  let phase = 0;
+  const render = () => {
+    const p = _COFFEE_PHASES[phase];
+    el.innerHTML = _coffeeHTML(p.cls, msg, phase === 0 && sub0 ? sub0 : p.sub);
+  };
+  render();
+  _loadingTimer = setInterval(() => {
+    phase = Math.min(phase + 1, _COFFEE_PHASES.length - 1);
+    render();
+    if (phase === _COFFEE_PHASES.length - 1) { clearInterval(_loadingTimer); _loadingTimer = null; }
+  }, 5000);
+}
 
 function setMode(m) {
   currentMode = m;
@@ -88,7 +120,7 @@ async function doSearch() {
   document.getElementById('rov-title').textContent='Buscando ferramentas…';
   document.getElementById('rov-sub').textContent=q;
   document.getElementById('rov').classList.add('active');
-  document.getElementById('rcont').innerHTML=`<div class="ai-loading"><div class="coffee-wrap"><div class="coffee-steam"><div class="steam"></div><div class="steam"></div><div class="steam"></div></div><div class="coffee-cup"><div class="coffee-liquid"></div></div></div><p>Preparando sua aula com carinho<span class="dots"></span><br/><span style="font-size:.74rem;color:var(--dim)">buscando ferramentas na nossa lista ☕</span></p></div>`;
+  showLoading(document.getElementById('rcont'), 'Preparando sua aula');
   try {
     const raw=await callDeepSeek(q);
     const clean=raw.replace(/```json|```/g,'').trim();
@@ -140,7 +172,11 @@ function renderResult(data) {
         <div class="idea-arrow">Aprofundar →</div>
       </div>`;
     });
-    h+=`</div></div>`;
+    h+=`</div>
+      <div style="text-align:center;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.07)">
+        <button class="mais-ideias-btn" id="mais-ideias-btn" onclick="maisIdeias()">+ Preciso de mais ideias</button>
+      </div>
+    </div>`;
   }
 
   if (data.bncc?.length) {
@@ -189,7 +225,7 @@ async function swapToolFromSearch() {
 
 async function _runDeepening(idea) {
   const rcont = document.getElementById('rcont');
-  rcont.innerHTML=`<div class="ai-loading"><div class="coffee-wrap"><div class="coffee-steam"><div class="steam"></div><div class="steam"></div><div class="steam"></div></div><div class="coffee-cup"><div class="coffee-liquid"></div></div></div><p>Aprofundando com <strong>${esc(idea.tool)}</strong><span class="dots"></span><br/><span style="font-size:.74rem;color:var(--dim)">o café ainda está quente ☕</span></p></div>`;
+  showLoading(rcont, `Aprofundando com ${esc(idea.tool)}`);
 
   const queryCtx = `${idea.title}: ${idea.description}. Ferramenta principal: ${idea.tool}. Contexto: ${currentResultData.query_understood||''} — ${currentResultData.nivel||''}`;
   const tools = smartLocalSearch(currentResultData.query_understood||'');
@@ -207,10 +243,11 @@ REGRAS ABSOLUTAS — TODAS AS SEÇÕES SÃO OBRIGATÓRIAS:
 - apps_alternativos: EXATAMENTE 3 ferramentas DIFERENTES de "${toolName}"
 - registro: EXATAMENTE 3 dicas de como os alunos documentam o aprendizado (portfólio digital, diário, foto, etc.)
 - avaliacao: OBRIGATÓRIO — método + EXATAMENTE 3 critérios objetivos focados no processo
+- ficha: ficha impressa para os alunos — título curto, instrução em 1 frase imperativa, 3 áreas com label (ex: "O que aprendi") e guia do que o aluno escreve
 - NÃO omita nenhuma dessas chaves do JSON — todas são obrigatórias
 
 FORMATO EXATO (copie esta estrutura exatamente):
-{"passos":[{"num":1,"titulo":"titulo curto","instrucao":"instrucao usando ${toolName}"},{"num":2,"titulo":"...","instrucao":"..."},{"num":3,"titulo":"...","instrucao":"..."},{"num":4,"titulo":"...","instrucao":"..."},{"num":5,"titulo":"...","instrucao":"..."}],"atencao":"dificuldade principal em 1 frase","interdisciplinar":[{"disciplina":"nome","emoji":"emoji","conexao":"conexao concreta"},{"disciplina":"...","emoji":"...","conexao":"..."},{"disciplina":"...","emoji":"...","conexao":"..."}],"apps_alternativos":[{"nome":"nome exato","emoji":"emoji","diferencial":"diferencial em 1 frase"},{"nome":"...","emoji":"...","diferencial":"..."},{"nome":"...","emoji":"...","diferencial":"..."}],"registro":["dica 1 de como o aluno documenta o aprendizado","dica 2","dica 3"],"avaliacao":{"metodo":"nome do método","criterios":["critério 1 com descritor","critério 2 com descritor","critério 3 com descritor"]}}`;
+{"passos":[{"num":1,"titulo":"titulo curto","instrucao":"instrucao usando ${toolName}"},{"num":2,"titulo":"...","instrucao":"..."},{"num":3,"titulo":"...","instrucao":"..."},{"num":4,"titulo":"...","instrucao":"..."},{"num":5,"titulo":"...","instrucao":"..."}],"atencao":"dificuldade principal em 1 frase","interdisciplinar":[{"disciplina":"nome","emoji":"emoji","conexao":"conexao concreta"},{"disciplina":"...","emoji":"...","conexao":"..."},{"disciplina":"...","emoji":"...","conexao":"..."}],"apps_alternativos":[{"nome":"nome exato","emoji":"emoji","diferencial":"diferencial em 1 frase"},{"nome":"...","emoji":"...","diferencial":"..."},{"nome":"...","emoji":"...","diferencial":"..."}],"registro":["dica 1 de como o aluno documenta o aprendizado","dica 2","dica 3"],"avaliacao":{"metodo":"nome do método","criterios":["critério 1 com descritor","critério 2 com descritor","critério 3 com descritor"]},"ficha":{"titulo":"título da ficha","instrucao":"Instrução para o aluno em 1 frase imperativa","areas":[{"label":"Área 1 — ex: O que aprendi","guia":"o que o aluno escreve aqui"},{"label":"Área 2 — ex: Minhas dúvidas","guia":"..."},{"label":"Área 3 — ex: O que ainda quero descobrir","guia":"..."}]}}`;
 
   try {
     const resp = await fetch(DEEPSEEK_URL, {
@@ -219,7 +256,7 @@ FORMATO EXATO (copie esta estrutura exatamente):
       body: JSON.stringify({
         model: 'deepseek-chat',
         messages: [{ role: 'system', content: sys }, { role: 'user', content: queryCtx }],
-        max_tokens: 2400,
+        max_tokens: 2900,
         temperature: 0.4
       })
     });
@@ -238,6 +275,7 @@ FORMATO EXATO (copie esta estrutura exatamente):
 // ── RENDER DEEPENING ────────────────────────────────────────
 function renderDeepening(idea, deep) {
   currentDeepeningIdea = idea;
+  currentFicha = deep.ficha || null;
   const toolData = TOOLS.find(t=>t.tool.toLowerCase()===idea.tool.toLowerCase());
   let h='<div class="ai-result">';
 
@@ -264,6 +302,25 @@ function renderDeepening(idea, deep) {
     h+=`</div></div>`;
   }
 
+  // ── FICHA IMPRESSA
+  if (deep.ficha) {
+    const f = deep.ficha;
+    h+=`<div class="deep-section deep-ficha">
+      <h4>📄 Ficha para imprimir</h4>
+      <div class="ficha-preview">
+        <div class="ficha-preview-title">${esc(f.titulo)}</div>
+        <div class="ficha-preview-instrucao">📝 ${esc(f.instrucao)}</div>
+        <div class="ficha-preview-areas">${(f.areas||[]).slice(0,3).map(a=>`
+          <div class="ficha-area-preview">
+            <div class="ficha-area-label">${esc(a.label)}</div>
+            <div class="ficha-area-lines"></div>
+          </div>`).join('')}
+        </div>
+      </div>
+      <button class="ficha-print-btn" onclick="printFicha()">🖨 Use esta ficha em sala de aula!</button>
+    </div>`;
+  }
+
   // ── REGISTRO DOS ALUNOS
   if (deep.registro?.length) {
     h+=`<div class="deep-section deep-registro">
@@ -278,17 +335,21 @@ function renderDeepening(idea, deep) {
   // ── AVALIAÇÃO
   if (deep.avaliacao) {
     const av = deep.avaliacao;
+    const currentMethod = av.metodo || '';
+    const methodOpts = AVAL_METHODS.map(m=>`<option value="${esc(m)}"${m===currentMethod?' selected':''}>${esc(m)}</option>`).join('');
+    const extraOpt = !AVAL_METHODS.includes(currentMethod) && currentMethod
+      ? `<option value="${esc(currentMethod)}" selected>${esc(currentMethod)}</option>` : '';
     h+=`<div class="deep-section deep-avaliacao">
       <h4>📊 Avaliação</h4>
-      <div class="aval-metodo"><span class="aval-metodo-lbl">Método</span><span class="aval-metodo-val">${esc(av.metodo||'')}</span></div>`;
-    if (av.criterios?.length) {
-      h+=`<div class="aval-criterios">`;
-      av.criterios.forEach((c,i)=>{
-        h+=`<div class="aval-crit-item"><span class="aval-crit-num">${i+1}</span><span class="aval-crit-text">${esc(c)}</span></div>`;
-      });
-      h+=`</div>`;
-    }
-    h+=`</div>`;
+      <div class="aval-metodo">
+        <span class="aval-metodo-lbl">Método</span>
+        <select class="aval-select" onchange="changeAvalMethod(this.value)">${extraOpt}${methodOpts}</select>
+      </div>
+      <div class="aval-criterios" id="aval-criterios-area">`;
+    (av.criterios||[]).forEach((c,i)=>{
+      h+=`<div class="aval-crit-item"><span class="aval-crit-num">${i+1}</span><span class="aval-crit-text">${esc(c)}</span></div>`;
+    });
+    h+=`</div></div>`;
   }
 
   // ── PONTO DE ATENÇÃO
@@ -338,6 +399,86 @@ function renderDeepening(idea, deep) {
   document.getElementById('rcont').innerHTML=h;
   document.getElementById('rov-title').textContent='✦ Aprofundamento';
   document.getElementById('rov-sub').textContent=`${idea.tool} · ${idea.title}`;
+}
+
+// ── FICHA IMPRESSA ────────────────────────────────────────
+function printFicha() {
+  const f = currentFicha;
+  if (!f) return;
+  const ideaTitle = currentDeepeningIdea?.title || 'Aula';
+  const w = window.open('', '_blank', 'width=820,height=720');
+  const areasHtml = (f.areas||[]).slice(0,3).map(a=>`
+    <div class="area">
+      <div class="area-label">${a.label||''}</div>
+      <div class="area-guide">${a.guia||''}</div>
+      <div class="area-lines"></div>
+    </div>`).join('');
+  w.document.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"/><title>${f.titulo}</title><style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',Arial,sans-serif;max-width:680px;margin:30px auto;color:#1a1a2e;padding:0 20px}
+  .header{border-bottom:3px solid #7c6ff7;padding-bottom:12px;margin-bottom:20px}
+  .eyebrow{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#7c6ff7;margin-bottom:5px}
+  h1{font-size:1.25rem;font-weight:800;color:#1a1a2e}
+  .subtitle{font-size:.72rem;color:#888;margin-top:3px}
+  .instrucao{font-size:.85rem;color:#444;margin-bottom:22px;padding:10px 14px;background:#f5f3ff;border-left:3px solid #7c6ff7;border-radius:0 6px 6px 0;line-height:1.5}
+  .area{border:1.5px solid #ddd;border-radius:10px;padding:14px 16px;margin-bottom:14px}
+  .area-label{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#7c6ff7;margin-bottom:3px}
+  .area-guide{font-size:.75rem;color:#999;font-style:italic;margin-bottom:11px}
+  .area-lines{height:100px;background:repeating-linear-gradient(transparent,transparent 27px,#e8e8e8 27px,#e8e8e8 28px)}
+  .footer{margin-top:24px;font-size:.6rem;color:#bbb;text-align:center;border-top:1px solid #eee;padding-top:10px}
+  @media print{body{margin:10mm 15mm}}
+  </style></head><body>
+  <div class="header"><div class="eyebrow">EduMake · Ficha de atividade</div><h1>${f.titulo}</h1><div class="subtitle">Aula: ${ideaTitle}</div></div>
+  <div class="instrucao">📝 ${f.instrucao}</div>
+  ${areasHtml}
+  <div class="footer">Gerado pelo EduMake — Personalizado para sua turma</div>
+  <script>setTimeout(()=>window.print(),400)</script>
+  </body></html>`);
+  w.document.close();
+}
+
+// ── TROCAR MÉTODO DE AVALIAÇÃO ────────────────────────────
+async function changeAvalMethod(method) {
+  if (!currentDeepeningIdea) return;
+  const el = document.getElementById('aval-criterios-area');
+  if (!el) return;
+  el.innerHTML = '<div style="font-size:.76rem;color:var(--dim);padding:8px 0">Gerando critérios<span class="dots"></span></div>';
+  const ctx = `Atividade: ${currentDeepeningIdea.title}. Ferramenta: ${currentDeepeningIdea.tool}. Nível: ${currentResultData?.nivel||''}`;
+  const sys = `Especialista em avaliação educacional. Para o método "${method}" aplicado à atividade, gere EXATAMENTE 3 critérios objetivos e específicos. JSON puro apenas: {"criterios":["critério 1 com descritor","critério 2","critério 3"]}`;
+  try {
+    const resp = await fetch(DEEPSEEK_URL, {
+      method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${DEEPSEEK_KEY}`},
+      body: JSON.stringify({model:'deepseek-chat',messages:[{role:'system',content:sys},{role:'user',content:ctx}],max_tokens:300,temperature:0.3})
+    });
+    const raw = await resp.text();
+    const content = JSON.parse(raw).choices?.[0]?.message?.content||'';
+    const match = content.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('no json');
+    const data = JSON.parse(match[0]);
+    el.innerHTML = (data.criterios||[]).map((c,i)=>`<div class="aval-crit-item"><span class="aval-crit-num">${i+1}</span><span class="aval-crit-text">${esc(c)}</span></div>`).join('');
+  } catch(_) {
+    el.innerHTML = '<div style="font-size:.74rem;color:var(--dim);padding:8px 0">Não foi possível gerar critérios. Tente outro método.</div>';
+  }
+}
+
+// ── MAIS IDEIAS ───────────────────────────────────────────
+async function maisIdeias() {
+  if (!currentResultData) return;
+  const btn = document.getElementById('mais-ideias-btn');
+  if (btn) { btn.textContent = 'Buscando mais ideias…'; btn.disabled = true; }
+  const alreadyTools = [...new Set(currentResultData.ideas.map(i=>i.tool))].join(', ');
+  const nextId = currentResultData.ideas.length + 1;
+  const q = `${currentResultData.query_understood||''} — nível: ${currentResultData.nivel||''}. Gere 5 ideias NOVAS E DIFERENTES das anteriores. Ferramentas já usadas (não repita): ${alreadyTools}.`;
+  try {
+    const raw = await callDeepSeek(q);
+    const data = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    data.ideas.forEach((idea,i) => { idea.id = nextId + i; });
+    currentResultData.ideas.push(...data.ideas);
+    renderResult(currentResultData);
+  } catch(e) {
+    if (btn) { btn.textContent = '+ Preciso de mais ideias'; btn.disabled = false; }
+    showNotif('Erro ao buscar mais ideias. Tente novamente.');
+  }
 }
 
 // ── MODAL ─────────────────────────────────────────────────
@@ -393,7 +534,7 @@ async function generateIdeasForTool() {
   document.getElementById('rov-title').textContent = 'Gerando ideias…';
   document.getElementById('rov-sub').textContent = `${t.tool} · ${theme}`;
   document.getElementById('rov').classList.add('active');
-  document.getElementById('rcont').innerHTML=`<div class="ai-loading"><div class="coffee-wrap"><div class="coffee-steam"><div class="steam"></div><div class="steam"></div><div class="steam"></div></div><div class="coffee-cup"><div class="coffee-liquid"></div></div></div><p>Gerando ideias com ${esc(t.tool)}<span class="dots"></span><br/><span style="font-size:.74rem;color:var(--dim)">café no forno ☕</span></p></div>`;
+  showLoading(document.getElementById('rcont'), `Gerando ideias com ${esc(t.tool)}`);
   try {
     const raw = await callDeepSeek(query);
     const clean = raw.replace(/```json|```/g,'').trim();

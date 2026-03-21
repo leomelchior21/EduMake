@@ -471,6 +471,26 @@ a.itool-chip:hover{background:rgba(124,111,247,.22);border-color:rgba(124,111,24
 .swap-pick-name{font-size:.8rem;font-weight:600;color:var(--text)}
 .swap-pick-cat{font-size:.68rem;color:var(--dim)}
 .swap-pick-cta{font-size:.72rem;font-weight:700;color:#7de8d8;flex-shrink:0}
+/* ── FICHA IMPRESSA ──────────────────────────────────────── */
+.deep-ficha{border-color:rgba(124,111,247,.28)!important;background:rgba(124,111,247,.04)!important}
+.deep-ficha h4{color:#c4bffe}
+.ficha-preview{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:11px;padding:14px 16px;margin-bottom:14px}
+.ficha-preview-title{font-family:var(--fd);font-size:.95rem;font-weight:800;color:var(--text);margin-bottom:6px}
+.ficha-preview-instrucao{font-size:.76rem;color:var(--muted);font-style:italic;margin-bottom:12px;padding:7px 10px;background:rgba(124,111,247,.07);border-left:2px solid rgba(124,111,247,.4);border-radius:0 6px 6px 0;line-height:1.5}
+.ficha-preview-areas{display:flex;flex-direction:column;gap:7px}
+.ficha-area-preview{border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:9px 12px}
+.ficha-area-label{font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:rgba(124,111,247,.75);margin-bottom:7px}
+.ficha-area-lines{height:26px;background:repeating-linear-gradient(transparent,transparent 12px,rgba(255,255,255,.06) 12px,rgba(255,255,255,.06) 13px);border-radius:3px}
+.ficha-print-btn{width:100%;padding:13px;border-radius:13px;background:linear-gradient(135deg,var(--accent),#5a52d5);border:none;color:#fff;font-family:var(--fd);font-size:.9rem;font-weight:700;cursor:pointer;letter-spacing:.02em;box-shadow:0 6px 24px rgba(124,111,247,.35);animation:cta-pulse 2s ease-in-out infinite;transition:transform .2s,box-shadow .2s}
+.ficha-print-btn:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(124,111,247,.5);animation:none}
+/* ── DROPDOWN MÉTODO AVALIATIVO ──────────────────────────── */
+.aval-select{background:rgba(240,167,68,.09);border:1px solid rgba(240,167,68,.3);border-radius:9px;padding:6px 30px 6px 11px;color:var(--amber);font-family:var(--fb);font-size:.81rem;font-weight:700;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='rgba(240,167,68,0.6)' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:calc(100% - 9px) center;transition:border-color .2s}
+.aval-select:focus{border-color:rgba(240,167,68,.55)}
+.aval-select option{background:#0e0e1a;color:var(--text)}
+/* ── BOTÃO MAIS IDEIAS ───────────────────────────────────── */
+.mais-ideias-btn{padding:11px 26px;border-radius:100px;background:rgba(124,111,247,.1);border:1.5px dashed rgba(124,111,247,.35);color:#a99ff8;font-family:var(--fb);font-size:.82rem;font-weight:700;cursor:pointer;transition:all .22s;letter-spacing:.01em}
+.mais-ideias-btn:hover{background:rgba(124,111,247,.2);border-style:solid;border-color:rgba(124,111,247,.5);box-shadow:0 4px 18px rgba(124,111,247,.18);transform:translateY(-1px)}
+.mais-ideias-btn:disabled{opacity:.45;pointer-events:none}
 /* ── REGISTRO DOS ALUNOS ─────────────────────────────────── */
 .deep-registro{border-color:rgba(184,247,61,.15)!important;background:rgba(184,247,61,.03)!important}
 .deep-registro h4{color:#c8f060}
