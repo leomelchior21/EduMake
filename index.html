@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EduMake — Ferramentas para Professores</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Syne:wght@700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="styles/main.css"/>
+<link rel="stylesheet" href="styles/bncc.css"/>
+<link rel="stylesheet" href="styles/animations.css"/>
+</head>
+<body>
+<div class="canvas">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+  <div class="blob b4"></div><div class="blob b5"></div>
+</div>
+<div id="app">
+<nav>
+  <div class="logo" onclick="showPage('home')">
+    <div class="logo-dot"></div>EduMake
+  </div>
+  <div class="nav-r">
+    <button class="nbtn active" id="nb-home" onclick="showPage('home')">Início</button>
+    <button class="nbtn" id="nb-bncc" onclick="showPage('bncc')" style="display:flex;align-items:center;gap:6px"><span style="font-size:.75rem">🧠</span>BNCC Computação</button>
+    <button class="ncta" onclick="showPage('tools')">Explore 418+ ferramentas</button>
+    <button class="hbg" id="hbg" onclick="toggleMob()"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="mob-nav" id="mobnav">
+  <button class="nbtn" onclick="showPage('home');toggleMob()">Início</button>
+  <button class="nbtn" onclick="showPage('bncc');toggleMob()">🧠 BNCC Computação</button>
+  <button class="ncta" onclick="showPage('tools');toggleMob()">Explore 418+ ferramentas</button>
+</div>
+
+<section id="home-page">
+  <div class="hero">
+    <div class="badge-pill"><span class="badge-dot"></span>Educação Infantil ao Ensino Médio · BNCC</div>
+    <h1 id="hero-h1"><span class="g1">A <span id="hero-word">ferramenta</span><br/>certa para cada</span> <span class="g2">aula</span></h1>
+    <p class="sub">Precisa de ajuda com sua aula? Te ajudamos a encontrar e usar as ferramentas certas — dentro do que você e seus alunos realmente precisam.</p>
+    <div class="search-box">
+      <div class="search-mode">
+        <button class="smode-btn active" id="mode-nl" onclick="setMode('nl')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          Busca livre
+        </button>
+        <button class="smode-btn" id="mode-str" onclick="setMode('str')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          Busca Guiada
+        </button>
+      </div>
+      <div id="panel-nl">
+        <div class="nl-input-wrap">
+          <!-- Improvement 2: removed "IA" from placeholder, replaced with "robótica" -->
+          <textarea id="nl-input" rows="3" placeholder="Ex: Quero trabalhar frações de forma lúdica com o 6º ano… ou: atividade de ciências com robótica para o 8º ano…"></textarea>
+          <div class="nl-hint">💡 Descreva livremente — série, disciplina, tema, método, objetivo…</div>
+        </div>
+      </div>
+      <div id="panel-str" class="hidden">
+        <div class="sgrid">
+          <div class="sf"><label>📚 Disciplina</label><input type="text" id="inp-disc" placeholder="Ex: Matemática, Ciências…" onkeydown="if(event.key==='Enter')doSearch()"/></div>
+          <div class="sf"><label>🎓 Série / Nível</label><input type="text" id="inp-serie" placeholder="Ex: Infantil, 7, 8-9, EM…" onkeydown="if(event.key==='Enter')doSearch()"/></div>
+          <div class="sf"><label>💡 Tema</label><input type="text" id="inp-tema" placeholder="Ex: sustentabilidade, robótica…" onkeydown="if(event.key==='Enter')doSearch()"/></div>
+          <div class="sf"><label>⚡ Método</label><input type="text" id="inp-ativ" placeholder="Ex: gamificação, projetos…" onkeydown="if(event.key==='Enter')doSearch()"/></div>
+        </div>
+        <p style="font-size:.72rem;color:var(--dim);margin-top:4px;text-align:center">💡 Preencha qualquer campo — qualquer combinação funciona</p>
+      </div>
+      <button class="sbtn" id="sbtn" onclick="doSearch()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <span>Buscar ferramentas</span>
+      </button>
+    </div>
+    <!-- HOW IT WORKS — full-width beam wrapper -->
+    <div class="how-wrap">
+    <div class="how-beam" aria-hidden="true">
+      <div class="how-beam-core"></div>
+    </div>
+    <div class="how-section">
+      <div class="how-section-header">
+        <div class="how-title">Como eu uso o EduMake?</div>
+        <div class="how-subtitle">Em três passos, você sai do zero para uma aula pronta.</div>
+      </div>
+      <div class="how-cards">
+        <div class="hw-card hw-c1">
+          <div class="hw-top">
+            <div class="hw-badge">1</div>
+            <div class="hw-icon">✏️</div>
+          </div>
+          <div>
+            <div class="hw-title">Descreva sua aula</div>
+          </div>
+          <div class="hw-desc">Fale livremente: série, disciplina, tema, método. Ex: <em>"frações de forma lúdica com o 6º ano"</em></div>
+        </div>
+        <div class="hw-card hw-c2">
+          <div class="hw-top">
+            <div class="hw-badge">2</div>
+            <div class="hw-icon">🙌</div>
+          </div>
+          <div>
+            <div class="hw-title">A gente te ajuda!</div>
+          </div>
+          <div class="hw-desc">5 ideias de aula com ferramentas reais, alinhadas à BNCC.</div>
+        </div>
+        <div class="hw-card hw-c3">
+          <div class="hw-top">
+            <div class="hw-badge">3</div>
+            <div class="hw-icon">🚀</div>
+          </div>
+          <div>
+            <div class="hw-title">Aprofunde o que quiser</div>
+          </div>
+          <div class="hw-desc">Escolha a ideia — veja conexões, alertas e apps alternativos.</div>
+        </div>
+      </div>
+    </div>
+    </div><!-- /how-wrap -->
+  </div>
+
+<!-- JOURNEY TIMELINE -->
+<div class="journey-wrap">
+  <div class="journey-header">
+    <div class="journey-label">✦ Na prática</div>
+    <div class="journey-title">Do zero ao plano de aula em minutos</div>
+    <div class="journey-sub">Veja como a Professora Ana usou o EduMake esta manhã</div>
+  </div>
+
+  <div class="tl-track">
+
+    <div class="tl-step tl-s1">
+      <div class="tl-num-wrap">
+        <div class="tl-num">1</div>
+        <div class="tl-connector"></div>
+      </div>
+      <div class="tl-card">
+        <div class="tl-card-glow"></div>
+        <span class="tl-icon">🌐</span>
+        <div class="tl-step-title">Entra no EduMake</div>
+        <div class="tl-step-desc">A Professora Ana precisa planejar uma aula sobre mudanças climáticas para o 8º ano — tem só 20 minutos.</div>
+      </div>
+    </div>
+
+    <div class="tl-step tl-s2">
+      <div class="tl-num-wrap">
+        <div class="tl-num">2</div>
+        <div class="tl-connector"></div>
+      </div>
+      <div class="tl-card">
+        <div class="tl-card-glow"></div>
+        <span class="tl-icon">✏️</span>
+        <div class="tl-step-title">Descreve o tema</div>
+        <div class="tl-step-desc">Digita livremente no campo de busca, sem precisar saber nomes de ferramentas.</div>
+        <div class="tl-quote">"Mudanças climáticas no 8º ano usando dados reais e debate em grupo"</div>
+      </div>
+    </div>
+
+    <div class="tl-step tl-s3">
+      <div class="tl-num-wrap">
+        <div class="tl-num">3</div>
+        <div class="tl-connector"></div>
+      </div>
+      <div class="tl-card">
+        <div class="tl-card-glow"></div>
+        <span class="tl-icon">✨</span>
+        <div class="tl-step-title">Recebe 5 ideias</div>
+        <div class="tl-step-desc">EduMake sugere aulas com ferramentas reais, alinhadas à BNCC, prontas para usar.</div>
+        <div class="tl-chips">
+          <span class="tl-chip">Gapminder</span>
+          <span class="tl-chip">Padlet</span>
+          <span class="tl-chip">Kahoot</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-step tl-s4">
+      <div class="tl-num-wrap">
+        <div class="tl-num">4</div>
+        <div class="tl-connector"></div>
+      </div>
+      <div class="tl-card">
+        <div class="tl-card-glow"></div>
+        <span class="tl-icon">🔍</span>
+        <div class="tl-step-title">Aprofunda uma ideia</div>
+        <div class="tl-step-desc">Escolhe "Visualização de dados com Gapminder" e vê passo a passo, conexões BNCC e apps alternativos.</div>
+      </div>
+    </div>
+
+    <div class="tl-step tl-s5">
+      <div class="tl-num-wrap">
+        <div class="tl-num">5</div>
+      </div>
+      <div class="tl-card tl-card-final">
+        <div class="tl-card-glow"></div>
+        <span class="tl-icon">⬇️</span>
+        <div class="tl-step-title">Exporta o PDF</div>
+        <div class="tl-step-desc">Salva o plano de aula completo em PDF e está pronta — em menos de 5 minutos.</div>
+        <div class="tl-final-badge">✓ Aula pronta!</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="journey-footer">
+    <button class="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><path d="M18 15l-6-6-6 6"/></svg>
+      De volta ao topo
+    </button>
+  </div>
+</div>
+
+<div class="stats" id="stats-section">
+  <div class="stat">
+    <div class="stat-icon">🛠</div>
+    <div class="stat-n" data-target="418" data-suffix="+">0</div>
+    <div class="stat-l">Ferramentas</div>
+  </div>
+  <div class="stat">
+    <div class="stat-icon">🗂</div>
+    <div class="stat-n" data-target="31">0</div>
+    <div class="stat-l">Categorias</div>
+  </div>
+  <div class="stat">
+    <div class="stat-icon">🎓</div>
+    <div class="stat-n" data-text="EI→EM">—</div>
+    <div class="stat-l">Todos os níveis</div>
+  </div>
+  <div class="stat">
+    <div class="stat-icon">✦</div>
+    <div class="stat-n" data-target="100" data-suffix="%">0</div>
+    <div class="stat-l">Alinhado à BNCC</div>
+  </div>
+</div>
+</section>
+
+<section id="tools-page" class="hidden">
+  <div class="tools-header">
+    <h2>Todas as Ferramentas</h2>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <input class="ts-input" id="ts-search" placeholder="Buscar…" oninput="applyFilters()"/>
+      <span class="ts-cnt" id="ts-cnt"></span>
+      <button class="ts-clear" id="ts-clear" onclick="clearToolFilters()" style="display:none">✕ Limpar filtros</button>
+    </div>
+  </div>
+  <div class="explore-filters" id="explore-filters">
+    <div class="ef-dropdown-wrap">
+      <label class="ef-dropdown-lbl">📚 Disciplina</label>
+      <select class="ef-dropdown" id="ef-subject" onchange="setExFilter('subject',this.value)"></select>
+    </div>
+    <div class="ef-dropdown-wrap">
+      <label class="ef-dropdown-lbl">🎓 Ano / Nível</label>
+      <select class="ef-dropdown" id="ef-grade" onchange="setExFilter('grade',this.value)"></select>
+    </div>
+    <div class="ef-dropdown-wrap">
+      <label class="ef-dropdown-lbl">🧩 Tipo de Ferramenta</label>
+      <select class="ef-dropdown" id="ef-category" onchange="setExFilter('cat',this.value)"></select>
+    </div>
+  </div>
+  <div class="tgrid" id="tgrid"></div>
+</section>
+
+<div id="rov">
+  <div class="rov-head">
+    <div class="rov-back" onclick="closeR()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </div>
+    <div class="rov-title">
+      <h3 id="rov-title">Resultado</h3>
+      <p id="rov-sub"></p>
+    </div>
+    <button class="rov-close" onclick="closeR()">✕ Fechar</button>
+  </div>
+  <div class="rov-body"><div id="rcont"></div></div>
+</div>
+
+<div id="modal-wrap" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div id="mcont"></div>
+    <button class="mclose" onclick="closeModal()">Fechar</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     BNCC COMPUTAÇÃO PAGE
+════════════════════════════════════════════════════════════ -->
+<section id="bncc-page" class="hidden">
+
+  <!-- HERO -->
+  <div class="bncc-hero">
+    <div class="bncc-badge"><span class="bncc-badge-dot"></span>Complemento à BNCC · Computação</div>
+    <h1 class="bncc-h1">
+      <span class="bncc-g1">Computação na</span><br>
+      <span class="bncc-g2">sala de aula real</span>
+    </h1>
+    <p class="bncc-sub">
+      A BNCC de Computação define <strong>o que cada aluno deve aprender</strong>, do Berçário ao 3º EM.
+      Aqui você encontra o código certo, entende o que ele significa e já sai com
+      <strong>ferramentas e jogos prontos para usar</strong> — com manual de aplicação.
+    </p>
+  </div>
+
+  <!-- PILARES + BUSCA — bloco unificado -->
+  <div class="bncc-top-block">
+
+    <!-- Pillars -->
+    <div class="bncc-pillars">
+      <div class="bncc-pillar" data-eixo="pc" onclick="togglePillar('pc')">
+        <div class="bncc-pillar-top">
+          <span class="bncc-pillar-icon">🧠</span>
+          <span class="bncc-pillar-tag pc">PC</span>
+        </div>
+        <h4>Pensamento Computacional</h4>
+        <p>Algoritmos, lógica, decomposição e reconhecimento de padrões.</p>
+      </div>
+      <div class="bncc-pillar" data-eixo="md" onclick="togglePillar('md')">
+        <div class="bncc-pillar-top">
+          <span class="bncc-pillar-icon">🌐</span>
+          <span class="bncc-pillar-tag md">MD</span>
+        </div>
+        <h4>Mundo Digital</h4>
+        <p>Como dispositivos, redes e dados funcionam na prática.</p>
+      </div>
+      <div class="bncc-pillar" data-eixo="cd" onclick="togglePillar('cd')">
+        <div class="bncc-pillar-top">
+          <span class="bncc-pillar-icon">🤝</span>
+          <span class="bncc-pillar-tag cd">CD</span>
+        </div>
+        <h4>Cultura Digital</h4>
+        <p>Uso ético, seguro e criativo da tecnologia na sociedade.</p>
+      </div>
+    </div>
+
+    <!-- Hint para filtro -->
+    <p class="bncc-pillar-hint">Clique nos pilares para filtrar as habilidades abaixo</p>
+
+    <!-- Separador -->
+    <div class="bncc-sep"><span>ou descreva sua aula</span></div>
+
+    <!-- Busca por descrição -->
+    <div class="bncc-nl-wrap">
+      <div class="bncc-nl-header">
+        <span class="bncc-nl-spark">✦ Busca por descrição</span>
+        <span class="bncc-nl-title">Descreva o que quer ensinar</span>
+        <span class="bncc-nl-sub">encontramos a habilidade BNCC ideal — você sai com ferramentas prontas para a aula</span>
+      </div>
+      <div class="bncc-nl-row">
+        <input class="bncc-nl-input" id="bncc-nl-input" placeholder="Ex: quero trabalhar algoritmos com 3º ano usando jogos…" onkeydown="if(event.key==='Enter')bnccNLSearch()"/>
+        <button class="bncc-nl-btn" onclick="bnccNLSearch()">Buscar →</button>
+      </div>
+      <div class="bncc-nl-examples">
+        <span onclick="bnccNLFill('pensamento computacional para Educação Infantil')">🎈 Ed. Infantil</span>
+        <span onclick="bnccNLFill('programação em blocos para 6º ano')">🧩 6º ano · Programação</span>
+        <span onclick="bnccNLFill('segurança digital e ética para 8º ano')">🔒 8º ano · Segurança</span>
+        <span onclick="bnccNLFill('inteligência artificial para Ensino Médio')">🤖 EM · Tecnologia</span>
+        <span onclick="bnccNLFill('cibersegurança e privacidade para 9º ano')">🛡 9º ano · Ciberseg.</span>
+      </div>
+      <div id="bncc-nl-result" class="bncc-nl-result hidden"></div>
+    </div>
+
+  </div>
+
+  <!-- EXPLORER -->
+  <div class="bncc-explorer">
+    <div class="bncc-explorer-head">
+      <h2>Encontre a habilidade certa</h2>
+      <p>Filtre por pilar, nível escolar ou tema — ou busque pelo nome da atividade</p>
+    </div>
+
+    <!-- Example card (random) -->
+    <div class="bncc-example-card" id="bncc-example-card">
+      <div class="bncc-example-eyebrow">💡 Habilidade em destaque</div>
+      <div class="bncc-example-code" id="ex-code">EF03CO01</div>
+      <div class="bncc-example-title" id="ex-title">Associar os valores 'verdadeiro' e 'falso' a sentenças lógicas do dia a dia, fazendo uso de termos que indicam negação.</div>
+      <div class="bncc-example-inspo" id="ex-inspo">
+        <a class="bncc-example-inspo-item" href="https://scratch.mit.edu" target="_blank"><span>💻</span> Scratch</a>
+        <a class="bncc-example-inspo-item" href="https://code.org" target="_blank"><span>🎮</span> Code.org</a>
+        <a class="bncc-example-inspo-item" href="https://wordwall.net" target="_blank"><span>🃏</span> Wordwall</a>
+      </div>
+    </div>
+
+    <!-- FILTER BAR — Improvement 4 -->
+    <div id="bncc-filter-bar">
+      <select class="bncc-filter-select" id="bncc-filter-nivel" onchange="filterSkillGrid()">
+        <option value="">📚 Todos os níveis</option>
+        <option value="EI">Educação Infantil</option>
+        <option value="EF1">Anos Iniciais (1º–5º)</option>
+        <option value="EF2">Anos Finais (6º–9º)</option>
+        <option value="EM">Ensino Médio</option>
+      </select>
+      <select class="bncc-filter-select" id="bncc-filter-tema" onchange="filterSkillGrid()">
+        <option value="">🎨 Todos os temas</option>
+      </select>
+      <input class="bncc-filter-search" id="bncc-filter-search" placeholder="🔍 Busca rápida por código ou palavra…" oninput="filterSkillGrid()"/>
+    </div>
+
+    <!-- SKILL GRID — Improvement 4 -->
+    <div id="bncc-skill-grid"></div>
+
+    <!-- Tabs (kept for backward compat — code search, age, grade, theme) -->
+    <div class="bncc-tabs">
+      <button class="bncc-tab active" data-tab="code" onclick="switchBnccTab('code')">🔍 Por código</button>
+      <button class="bncc-tab" data-tab="age" onclick="switchBnccTab('age')">🎂 Por faixa etária</button>
+      <button class="bncc-tab" data-tab="grade" onclick="switchBnccTab('grade')">📚 Por ano escolar</button>
+      <button class="bncc-tab" data-tab="theme" onclick="switchBnccTab('theme')">🎨 Por tema</button>
+    </div>
+
+    <!-- PANEL: Código -->
+    <div class="bncc-panel active" id="bncc-panel-code">
+      <div class="bncc-code-search">
+        <input class="bncc-code-input" id="bncc-code-input" placeholder="Ex: EF03CO01, EF06CO02, EM13CO10…" oninput="bnccCodeHint()" onkeydown="if(event.key==='Enter')bnccSearch()"/>
+        <button class="bncc-go-btn" onclick="bnccSearch()">Buscar habilidade →</button>
+      </div>
+      <div class="bncc-chips" id="bncc-code-chips">
+        <span class="bncc-chip" onclick="bnccQuick('EI03CO01')">EI03CO01</span>
+        <span class="bncc-chip" onclick="bnccQuick('EF01CO02')">EF01CO02</span>
+        <span class="bncc-chip" onclick="bnccQuick('EF03CO01')">EF03CO01</span>
+        <span class="bncc-chip" onclick="bnccQuick('EF05CO03')">EF05CO03</span>
+        <span class="bncc-chip" onclick="bnccQuick('EF06CO02')">EF06CO02</span>
+        <span class="bncc-chip" onclick="bnccQuick('EF07CO07')">EF07CO07</span>
+        <span class="bncc-chip" onclick="bnccQuick('EF08CO05')">EF08CO05</span>
+        <span class="bncc-chip" onclick="bnccQuick('EF09CO05')">EF09CO05</span>
+        <span class="bncc-chip" onclick="bnccQuick('EM13CO10')">EM13CO10</span>
+        <span class="bncc-chip" onclick="bnccQuick('EM13CO16')">EM13CO16</span>
+      </div>
+    </div>
+
+    <!-- PANEL: Faixa etária -->
+    <div class="bncc-panel" id="bncc-panel-age">
+      <div class="bncc-age-grid" id="bncc-age-grid"></div>
+    </div>
+
+    <!-- PANEL: Ano escolar -->
+    <div class="bncc-panel" id="bncc-panel-grade">
+      <div class="bncc-age-grid" id="bncc-grade-grid"></div>
+    </div>
+
+    <!-- PANEL: Tema -->
+    <div class="bncc-panel" id="bncc-panel-theme">
+      <div class="bncc-theme-grid" id="bncc-theme-grid"></div>
+    </div>
+
+    <!-- RESULTS (for NL search results and code/filter search) -->
+    <div class="bncc-results hidden" id="bncc-results">
+      <div class="bncc-results-head">
+        <div class="bncc-results-title" id="bncc-results-title">Habilidade</div>
+        <div class="bncc-results-code" id="bncc-results-code">—</div>
+      </div>
+      <div id="bncc-skill-area"></div>
+      <div id="bncc-res-area"></div>
+
+      <!-- AI PANEL — Improvement 2: title changed -->
+      <div class="bncc-ai-panel" id="bncc-ai-panel">
+        <div class="bncc-ai-header">
+          <span class="bncc-ai-spark">✦</span>
+          <span class="bncc-ai-title">Sugestões para esta habilidade</span>
+        </div>
+
+        <!-- Contexto da turma -->
+        <div class="bncc-ai-context-wrap">
+          <label class="bncc-ai-ctx-label">Conte sobre sua turma <span>(opcional — melhora muito os resultados)</span></label>
+          <textarea class="bncc-ai-ctx-input" id="bncc-ai-ctx" placeholder="Ex: 28 alunos, 6º ano, poucos computadores (1 por dupla), tema atual é frações, turma agitada mas engajada com jogos…" rows="2"></textarea>
+        </div>
+
+        <!-- Botões de ação -->
+        <div class="bncc-ai-actions">
+          <button class="bncc-ai-action-btn plan" onclick="callBnccAI('plano')">
+            <span>📋</span>
+            <div>
+              <div class="bncc-ai-action-name">Gerar plano de aula</div>
+              <div class="bncc-ai-action-desc">Sequência completa: objetivos, atividades, avaliação</div>
+            </div>
+          </button>
+          <button class="bncc-ai-action-btn rubrica" onclick="callBnccAI('rubrica')">
+            <span>📊</span>
+            <div>
+              <div class="bncc-ai-action-name">Gerar rubrica</div>
+              <div class="bncc-ai-action-desc">Critérios de avaliação alinhados à BNCC</div>
+            </div>
+          </button>
+          <button class="bncc-ai-action-btn sequencia" onclick="callBnccAI('sequencia')">
+            <span>🗓</span>
+            <div>
+              <div class="bncc-ai-action-name">Sequência didática</div>
+              <div class="bncc-ai-action-desc">4–6 aulas progressivas para esta habilidade</div>
+            </div>
+          </button>
+        </div>
+
+        <!-- Chat de dúvidas -->
+        <div class="bncc-ai-chat-wrap">
+          <div class="bncc-ai-chat-label">💬 Pergunte sobre esta habilidade</div>
+          <div class="bncc-ai-chat-row">
+            <input class="bncc-ai-chat-input" id="bncc-ai-chat-input" placeholder="Como avaliar alunos com dificuldade? Que adaptações posso fazer? …" onkeydown="if(event.key==='Enter')callBnccAI('chat')"/>
+            <button class="bncc-ai-chat-send" onclick="callBnccAI('chat')">→</button>
+          </div>
+        </div>
+
+        <!-- Output área -->
+        <div class="bncc-ai-output hidden" id="bncc-ai-output"></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div id="notif"></div>
+<footer><span>EduMake</span> — 418+ ferramentas · Educação Infantil ao Ensino Médio · Alinhado à BNCC</footer>
+</div>
+
+<script src="scripts/data/tools.js"></script>
+<script src="scripts/data/bncc-skills.js"></script>
+<script src="scripts/config.js"></script>
+<script src="scripts/search.js"></script>
+<script src="scripts/bncc.js"></script>
+<script src="scripts/print.js"></script>
+<script src="scripts/app.js"></script>
+</body>
+</html>

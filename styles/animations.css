@@ -1,0 +1,70 @@
+/* ── KEYFRAME ANIMATIONS ── */
+@keyframes drift{
+  0%{transform:translate(0,0) scale(1)}
+  33%{transform:translate(60px,-40px) scale(1.08)}
+  66%{transform:translate(-40px,60px) scale(.93)}
+  100%{transform:translate(30px,30px) scale(1.05)}
+}
+@keyframes pulse{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:.45;transform:scale(.65)}
+}
+@keyframes blink-cursor{
+  0%,100%{border-color:var(--accent2)}
+  50%{border-color:transparent}
+}
+@keyframes ellipsis{
+  0%,100%{content:''}
+  25%{content:'.'}
+  50%{content:'..'}
+  75%{content:'...'}
+}
+@keyframes bncc-pulse{
+  0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,212,180,.5)}
+  50%{opacity:.6;box-shadow:0 0 0 8px rgba(0,212,180,0)}
+}
+@keyframes bncc-spin{to{transform:rotate(360deg)}}
+
+/* ── COFFEE ANIMATION — DOUBLED SIZE (Improvement 1) ── */
+.coffee-wrap{position:relative;width:160px;height:160px}
+.coffee-cup{
+  width:120px;height:88px;
+  background:rgba(124,111,247,.18);
+  border:4px solid rgba(124,111,247,.4);
+  border-radius:8px 8px 24px 24px;
+  position:absolute;bottom:0;left:50%;transform:translateX(-50%)
+}
+.coffee-cup::after{
+  content:'';position:absolute;
+  right:-26px;top:16px;
+  width:24px;height:40px;
+  border:4px solid rgba(124,111,247,.4);
+  border-left:none;border-radius:0 20px 20px 0
+}
+.coffee-liquid{
+  position:absolute;bottom:6px;left:6px;right:6px;height:44px;
+  background:linear-gradient(135deg,var(--accent),var(--pink));
+  border-radius:4px 4px 18px 18px;
+  animation:coffee-fill 1.8s ease-in-out infinite alternate
+}
+@keyframes coffee-fill{
+  0%{height:16px;opacity:.7}
+  100%{height:56px;opacity:1}
+}
+.coffee-steam{
+  position:absolute;top:-20px;left:50%;
+  transform:translateX(-50%);
+  display:flex;gap:14px
+}
+.steam{
+  width:8px;height:36px;
+  border-radius:8px;
+  background:rgba(240,240,250,.22);
+  animation:steam-rise 1.4s ease-in-out infinite
+}
+.steam:nth-child(2){animation-delay:.28s;height:48px}
+.steam:nth-child(3){animation-delay:.56s}
+@keyframes steam-rise{
+  0%,100%{transform:translateY(0) scaleX(1);opacity:.2}
+  50%{transform:translateY(-20px) scaleX(1.5);opacity:.7}
+}
