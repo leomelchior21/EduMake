@@ -2,6 +2,7 @@
 let currentMode = 'nl';
 let currentResultData = null;
 let currentModalTool = null;
+let currentDeepeningIdea = null;
 
 function setMode(m) {
   currentMode = m;
@@ -151,27 +152,58 @@ async function deepenIdea(ideaId) {
   if (!currentResultData) return;
   const idea = currentResultData.ideas.find(i=>i.id===ideaId);
   if (!idea) return;
+  currentDeepeningIdea = idea;
+  await _runDeepening(idea);
+}
 
+async function redeepenWithTool(newToolName, newToolEmoji) {
+  if (!currentDeepeningIdea || !currentResultData) return;
+  const updated = { ...currentDeepeningIdea, tool: newToolName, tool_emoji: newToolEmoji || '🔧' };
+  const idx = currentResultData.ideas.findIndex(i=>i.id===updated.id);
+  if (idx >= 0) currentResultData.ideas[idx] = updated;
+  currentDeepeningIdea = updated;
+  await _runDeepening(updated);
+}
+
+async function swapToolFromSearch() {
+  const input = document.getElementById('deep-swap-input');
+  const desc = (input?.value||'').trim();
+  if (!desc) { showNotif('Descreva o que você precisa.'); return; }
+  const tools = smartLocalSearch(desc);
+  const box = document.getElementById('deep-swap-results');
+  if (!box) return;
+  if (!tools.length) { box.innerHTML='<p style="font-size:.76rem;color:var(--dim);padding:6px 0">Nenhuma ferramenta encontrada.</p>'; return; }
+  box.innerHTML = tools.slice(0,5).map(t=>`
+    <div class="swap-pick-item" onclick="redeepenWithTool('${esc(t.name)}','')">
+      <span class="swap-pick-emo">${ge(t.category)}</span>
+      <div class="swap-pick-body"><div class="swap-pick-name">${esc(t.name)}</div><div class="swap-pick-cat">${esc(t.category)}</div></div>
+      <span class="swap-pick-cta">Usar →</span>
+    </div>`).join('');
+}
+
+async function _runDeepening(idea) {
   const rcont = document.getElementById('rcont');
-  rcont.innerHTML=`<div class="ai-loading"><div class="coffee-wrap"><div class="coffee-steam"><div class="steam"></div><div class="steam"></div><div class="steam"></div></div><div class="coffee-cup"><div class="coffee-liquid"></div></div></div><p>Aprofundando a ideia<span class="dots"></span><br/><span style="font-size:.74rem;color:var(--dim)">o café ainda está quente ☕</span></p></div>`;
+  rcont.innerHTML=`<div class="ai-loading"><div class="coffee-wrap"><div class="coffee-steam"><div class="steam"></div><div class="steam"></div><div class="steam"></div></div><div class="coffee-cup"><div class="coffee-liquid"></div></div></div><p>Aprofundando com <strong>${esc(idea.tool)}</strong><span class="dots"></span><br/><span style="font-size:.74rem;color:var(--dim)">o café ainda está quente ☕</span></p></div>`;
 
-  const queryCtx = `${idea.title}: ${idea.description}. Ferramenta: ${idea.tool}. Contexto: ${currentResultData.query_understood||''} — ${currentResultData.nivel||''}`;
+  const queryCtx = `${idea.title}: ${idea.description}. Ferramenta principal: ${idea.tool}. Contexto: ${currentResultData.query_understood||''} — ${currentResultData.nivel||''}`;
   const tools = smartLocalSearch(currentResultData.query_understood||'');
   const toolName = idea.tool;
 
-  const sys = `Você é especialista em EdTech e didática brasileira. Aprofunde a ideia de aula com um guia prático completo.
+  const sys = `Você é especialista em EdTech e didática brasileira. Aprofunde a ideia com guia completo e prático.
 
-FERRAMENTAS DISPONÍVEIS (para sugerir alternativas — devem ser DIFERENTES de ${toolName}):
+FERRAMENTAS DISPONÍVEIS (para alternativas — devem ser DIFERENTES de "${toolName}"):
 ${JSON.stringify(tools.slice(0,40))}
 
-REGRAS CRÍTICAS:
-- Responda APENAS com JSON puro, sem markdown, sem texto extra, sem backticks
-- apps_alternativos: 3 ferramentas DIFERENTES de "${toolName}", preferencialmente da lista acima
-- interdisciplinar: 3 disciplinas REAIS com atividades concretas — SEM mencionar IA, apenas conexões didáticas humanas
-- passos: entre 5 e 7 passos práticos, cada passo com titulo curto e instrucao clara de como usar ${toolName} nesse momento
+REGRAS:
+- Responda APENAS com JSON puro, sem markdown, sem backticks
+- apps_alternativos: 3 ferramentas DIFERENTES de "${toolName}"
+- interdisciplinar: 3 disciplinas com atividades concretas
+- passos: 5 a 7 passos claros usando ${toolName}
+- registro: 3 dicas curtas e práticas de como os alunos podem documentar o aprendizado (portfólio, diário, foto, etc.)
+- avaliacao: método de avaliação + 3 critérios objetivos com foco no processo, não só no resultado
 
 FORMATO EXATO:
-{"passos":[{"num":1,"titulo":"titulo curto do passo","instrucao":"o que o professor faz nesse momento e como usa ${toolName} especificamente"},{"num":2,"titulo":"...","instrucao":"..."}],"atencao":"Um parágrafo curto e direto sobre a principal dificuldade real ao aplicar essa atividade.","interdisciplinar":[{"disciplina":"nome da disciplina","emoji":"emoji relevante","conexao":"atividade ou tema concreto que conecta as duas disciplinas"},{"disciplina":"...","emoji":"...","conexao":"..."},{"disciplina":"...","emoji":"...","conexao":"..."}],"apps_alternativos":[{"nome":"nome exato da ferramenta","emoji":"emoji","diferencial":"o que essa ferramenta faz de unico que o professor provavelmente nao conhece"},{"nome":"...","emoji":"...","diferencial":"..."},{"nome":"...","emoji":"...","diferencial":"..."}]}`;
+{"passos":[{"num":1,"titulo":"titulo curto","instrucao":"instrucao especifica usando ${toolName}"},{"num":2,"titulo":"...","instrucao":"..."}],"atencao":"dificuldade principal em 1-2 frases diretas","interdisciplinar":[{"disciplina":"nome","emoji":"emoji","conexao":"atividade concreta"},{"disciplina":"...","emoji":"...","conexao":"..."},{"disciplina":"...","emoji":"...","conexao":"..."}],"apps_alternativos":[{"nome":"nome exato","emoji":"emoji","diferencial":"diferencial único em 1 frase"},{"nome":"...","emoji":"...","diferencial":"..."},{"nome":"...","emoji":"...","diferencial":"..."}],"registro":["dica 1 de documentação do aluno","dica 2","dica 3"],"avaliacao":{"metodo":"nome do método de avaliação","criterios":["critério 1 com descritor","critério 2 com descritor","critério 3 com descritor"]}}`;
 
   try {
     const resp = await fetch(DEEPSEEK_URL, {
@@ -180,7 +212,7 @@ FORMATO EXATO:
       body: JSON.stringify({
         model: 'deepseek-chat',
         messages: [{ role: 'system', content: sys }, { role: 'user', content: queryCtx }],
-        max_tokens: 1200,
+        max_tokens: 1600,
         temperature: 0.4
       })
     });
@@ -196,88 +228,109 @@ FORMATO EXATO:
   }
 }
 
-// ── RENDER DEEPENING (with PDF button — Improvement 3) ─────
+// ── RENDER DEEPENING ────────────────────────────────────────
 function renderDeepening(idea, deep) {
+  currentDeepeningIdea = idea;
   const toolData = TOOLS.find(t=>t.tool.toLowerCase()===idea.tool.toLowerCase());
   let h='<div class="ai-result">';
 
-  // ── BACK BUTTON + PDF EXPORT BUTTON
-  h+=`<div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;"><div class="deep-back" onclick="renderResult(currentResultData)">← Voltar às 5 ideias</div><button class="deep-print-btn" onclick="exportToPDF()">⬇ Exportar PDF</button></div>`;
+  // ── BACK + PDF
+  h+=`<div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap"><div class="deep-back" onclick="renderResult(currentResultData)">← Voltar às 5 ideias</div><button class="deep-print-btn" onclick="exportToPDF()">⬇ Exportar PDF</button></div>`;
 
-  // ── BIG TITLE HERO
+  // ── HERO
   h+=`<div class="deep-hero">
     <div class="deep-hero-num">${idea.id}</div>
     <h2 class="deep-hero-title">${esc(idea.title)}</h2>
     <p class="deep-hero-desc">${esc(idea.description)}</p>
-    <span class="deep-hero-tool">${idea.tool_emoji||'🔧'} ${esc(idea.tool)}</span>
-    ${toolData?`<a href="${esc(toolData.link)}" target="_blank" rel="noopener" class="deep-hero-link">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-      Abrir ${esc(idea.tool)}</a>`:''}
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span class="deep-hero-tool">${idea.tool_emoji||'🔧'} ${esc(idea.tool)}</span>
+      ${toolData?`<a href="${esc(toolData.link)}" target="_blank" rel="noopener" class="deep-hero-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Abrir ${esc(idea.tool)}</a>`:''}
+    </div>
   </div>`;
 
   // ── PASSO A PASSO
   if (deep.passos?.length) {
-    h+=`<div class="deep-section">
-      <h4>📋 Sequência didática passo a passo</h4>
-      <div class="steps-list">`;
+    h+=`<div class="deep-section"><h4>📋 Sequência didática passo a passo</h4><div class="steps-list">`;
     deep.passos.forEach(p=>{
-      h+=`<div class="step-item">
-        <div class="step-num">${p.num}</div>
-        <div class="step-body">
-          <div class="step-title">${esc(p.titulo)}</div>
-          <div class="step-inst">${esc(p.instrucao)}</div>
-        </div>
-      </div>`;
+      h+=`<div class="step-item"><div class="step-num">${p.num}</div><div class="step-body"><div class="step-title">${esc(p.titulo)}</div><div class="step-inst">${esc(p.instrucao)}</div></div></div>`;
     });
     h+=`</div></div>`;
   }
 
+  // ── REGISTRO DOS ALUNOS
+  if (deep.registro?.length) {
+    h+=`<div class="deep-section deep-registro">
+      <h4>📓 Dicas de registro para os alunos</h4>
+      <div class="registro-list">`;
+    deep.registro.forEach((r,i)=>{
+      h+=`<div class="registro-item"><span class="registro-num">${i+1}</span><span class="registro-text">${esc(r)}</span></div>`;
+    });
+    h+=`</div></div>`;
+  }
+
+  // ── AVALIAÇÃO
+  if (deep.avaliacao) {
+    const av = deep.avaliacao;
+    h+=`<div class="deep-section deep-avaliacao">
+      <h4>📊 Avaliação</h4>
+      <div class="aval-metodo"><span class="aval-metodo-lbl">Método</span><span class="aval-metodo-val">${esc(av.metodo||'')}</span></div>`;
+    if (av.criterios?.length) {
+      h+=`<div class="aval-criterios">`;
+      av.criterios.forEach((c,i)=>{
+        h+=`<div class="aval-crit-item"><span class="aval-crit-num">${i+1}</span><span class="aval-crit-text">${esc(c)}</span></div>`;
+      });
+      h+=`</div>`;
+    }
+    h+=`</div>`;
+  }
+
   // ── PONTO DE ATENÇÃO
   if (deep.atencao) {
-    h+=`<div class="deep-section">
-      <h4>⚠️ Ponto de atenção</h4>
-      <div class="attention-box">
-        <div class="attention-ico">⚠️</div>
-        <div class="attention-text">${esc(deep.atencao)}</div>
-      </div>
-    </div>`;
+    h+=`<div class="deep-section"><h4>⚠️ Ponto de atenção</h4><div class="attention-box"><div class="attention-ico">⚠️</div><div class="attention-text">${esc(deep.atencao)}</div></div></div>`;
   }
 
   // ── CONEXÕES INTERDISCIPLINARES
   if (deep.interdisciplinar?.length) {
     h+=`<div class="deep-section"><h4>🔗 Conexões interdisciplinares</h4>`;
     deep.interdisciplinar.slice(0,3).forEach(c=>{
-      h+=`<div class="inter-item">
-        <div class="inter-ico">${c.emoji||'📚'}</div>
-        <div class="inter-body">
-          <div class="inter-disc">${esc(c.disciplina)}</div>
-          <div class="inter-conexao">${esc(c.conexao)}</div>
-        </div>
-      </div>`;
+      h+=`<div class="inter-item"><div class="inter-ico">${c.emoji||'📚'}</div><div class="inter-body"><div class="inter-disc">${esc(c.disciplina)}</div><div class="inter-conexao">${esc(c.conexao)}</div></div></div>`;
     });
     h+=`</div>`;
   }
 
-  // ── APPS ALTERNATIVOS
+  // ── APPS ALTERNATIVOS (com botão de troca)
   if (deep.apps_alternativos?.length) {
-    h+=`<div class="deep-section"><h4>🔍 Ferramentas parecidas que você provavelmente não conhece</h4><div class="alt-apps">`;
+    h+=`<div class="deep-section"><h4>🔄 Trocar ferramenta</h4><p style="font-size:.76rem;color:var(--dim);margin-bottom:12px">Não curtiu ${esc(idea.tool)}? Experimente uma alternativa — o aprofundamento será refeito com ela.</p><div class="alt-apps">`;
     deep.apps_alternativos.slice(0,3).forEach(app=>{
       const found = TOOLS.find(t=>t.tool.toLowerCase()===app.nome.toLowerCase());
+      const nameHtml = found
+        ? `<span class="alt-app-name-link" onclick="openModalByName('${esc(app.nome)}')">${esc(app.nome)}</span>`
+        : `<span>${esc(app.nome)}</span>`;
       h+=`<div class="alt-app">
         <div class="alt-app-ico">${app.emoji||'📌'}</div>
-        <div>
-          <div class="alt-app-name">${found?`<span onclick="openModalByName('${esc(app.nome)}')" style="cursor:pointer;text-decoration:underline;text-decoration-style:dashed;text-underline-offset:3px">${esc(app.nome)}</span>`:esc(app.nome)}</div>
+        <div class="alt-app-info">
+          <div class="alt-app-name">${nameHtml}</div>
           <div class="alt-app-desc">${esc(app.diferencial)}</div>
         </div>
+        <button class="alt-swap-btn" onclick="redeepenWithTool('${esc(app.nome)}','${esc(app.emoji||'🔧')}')">Usar esta →</button>
       </div>`;
     });
-    h+=`</div></div>`;
+    h+=`</div>
+    <div class="deep-swap-search">
+      <div class="deep-swap-label">Ou descreva o que você precisa:</div>
+      <div class="deep-swap-row">
+        <input id="deep-swap-input" class="deep-swap-inp" placeholder="Ex: algo mais visual, funciona offline, para celular…" onkeydown="if(event.key==='Enter')swapToolFromSearch()"/>
+        <button class="deep-swap-btn" onclick="swapToolFromSearch()">Buscar →</button>
+      </div>
+      <div id="deep-swap-results" class="deep-swap-results"></div>
+    </div>
+    </div>`;
   }
 
   h+='</div>';
   document.getElementById('rcont').innerHTML=h;
   document.getElementById('rov-title').textContent='✦ Aprofundamento';
-  document.getElementById('rov-sub').textContent=idea.title;
+  document.getElementById('rov-sub').textContent=`${idea.tool} · ${idea.title}`;
 }
 
 // ── MODAL ─────────────────────────────────────────────────
@@ -298,9 +351,14 @@ function openModal(t) {
   document.getElementById('mcont').innerHTML=`
     <div class="mhdr">
       <div class="memo">${ge(t.category)}</div>
-      <div class="mtg"><h2>${esc(t.tool)}</h2><div class="mbdgs"><span class="bcat">${esc(t.category)}</span><span class="bsub">${esc(t.subject)}</span><span class="bgr">${esc(t.grade)}</span></div></div>
+      <div class="mtg"><h2>${esc(t.tool)}</h2><div class="mbdgs">
+        <span class="bcat filt-tag" onclick="goToToolsWithFilter('cat','${esc(t.category)}')" title="Ver todas: ${esc(t.category)}">${esc(t.category)}</span>
+        <span class="bsub filt-tag" onclick="goToToolsWithFilter('subject','${esc(t.subject)}')" title="Ver todas: ${esc(t.subject)}">${esc(t.subject)}</span>
+        <span class="bgr filt-tag" onclick="goToToolsWithFilter('grade','${esc(t.grade)}')" title="Ver todas: ${esc(t.grade)}">${esc(t.grade)}</span>
+      </div></div>
       <a href="${esc(t.link)}" target="_blank" rel="noopener" class="mlnk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Acessar</a>
     </div>
+    <button class="mtool-cta-btn" onclick="document.getElementById('mtool-theme-input')?.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>document.getElementById('mtool-theme-input')?.focus(),320)">✦ Quero usar essa ferramenta!</button>
     <div class="msec mtg-desc-sec"><h4>🔍 O que é</h4><p>${didaticDesc}</p></div>
     <div class="msec"><h4>📚 Atividade sugerida</h4><p>${esc(t.lesson)}</p></div>
     <div class="msec"><h4>🎯 Método</h4><p>${esc(t.method)}</p></div>

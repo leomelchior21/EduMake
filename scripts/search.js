@@ -132,10 +132,16 @@ function applyFilters() {
   } else {
     grid.innerHTML = f.map(t=>`
       <div class="tcard" style="--cc:${gc(t.category)}" onclick='openModal(${JSON.stringify(t)})'>
-        <div class="tc-top"><span class="tc-emo">${ge(t.category)}</span><span class="tc-badge">${esc(t.grade)}</span></div>
+        <div class="tc-top">
+          <span class="tc-emo filt-tag" onclick="event.stopPropagation();goToToolsWithFilter('cat','${esc(t.category)}')" title="Ver tudo: ${esc(t.category)}">${ge(t.category)}</span>
+          <span class="tc-badge filt-tag" onclick="event.stopPropagation();goToToolsWithFilter('grade','${esc(t.grade)}')" title="Ver tudo: ${esc(t.grade)}">${esc(t.grade)}</span>
+        </div>
         <div class="tc-name">${esc(t.tool)}</div>
         <div class="tc-desc">${esc(t.lesson)}</div>
-        <div class="tc-tags"><span class="tag ts">${esc(t.subject)}</span><span class="tag tm">${esc(t.method)}</span></div>
+        <div class="tc-tags">
+          <span class="tag ts filt-tag" onclick="event.stopPropagation();goToToolsWithFilter('subject','${esc(t.subject)}')" title="Ver tudo: ${esc(t.subject)}">${esc(t.subject)}</span>
+          <span class="tag tm">${esc(t.method)}</span>
+        </div>
       </div>`).join('');
   }
   const cnt = document.getElementById('ts-cnt');
@@ -153,4 +159,17 @@ function clearToolFilters() {
   const selects = ['ef-subject','ef-grade','ef-category'];
   selects.forEach(id => { const el = document.getElementById(id); if (el) el.value = 'all'; });
   applyFilters();
+}
+
+function goToToolsWithFilter(type, value) {
+  activeSubject = 'all'; activeGrade = 'all'; activeCatEx = 'all';
+  if (type === 'subject') activeSubject = value;
+  else if (type === 'grade') {
+    if (/^EI$/i.test(value)) activeGrade = 'EI';
+    else if (/^EM$/i.test(value)) activeGrade = 'EM';
+    else { const m = value.match(/^(\d)/); if (m) activeGrade = m[1]; }
+  }
+  else if (type === 'cat') activeCatEx = value;
+  closeModal();
+  showPage('tools');
 }
