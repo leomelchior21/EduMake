@@ -76,6 +76,13 @@ function bcsPickFilter(bcsId, value, label, hiddenSelectId) {
   if (hidSel) { hidSel.value = value; filterSkillGrid(); }
 }
 
+// ── ACCORDION ─────────────────────────────────────────────
+function bnccAccToggle(el) {
+  const isOpen = el.classList.contains('open');
+  document.querySelectorAll('.bncc-acc-item.open').forEach(i => i.classList.remove('open'));
+  if (!isOpen) el.classList.add('open');
+}
+
 // ── INIT ──────────────────────────────────────────────────
 function initBncc() {
   if (bnccInited) return;

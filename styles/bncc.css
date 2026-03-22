@@ -545,23 +545,47 @@
 #bncc-results{max-width:960px;margin:0 auto 32px;padding:0 24px}
 #bncc-results .bncc-results-head{display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap}
 
-/* ── BNCC ABOUT STRIP ───────────────────────────────────── */
-.bncc-about-strip{max-width:960px;margin:0 auto 52px;padding:0 24px}
-.bncc-about-inner{display:grid;grid-template-columns:1fr 2fr;gap:32px;align-items:center;background:rgba(0,212,180,.04);border:1px solid var(--bncc-border);border-radius:20px;padding:28px 32px}
-.bncc-about-kicker{font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--bncc-teal);margin-bottom:6px}
-.bncc-about-title{font-family:'Syne',sans-serif;font-size:1.35rem;font-weight:800;color:var(--fg);margin-bottom:10px;line-height:1.2}
-.bncc-about-desc{font-size:.85rem;color:var(--muted);line-height:1.6;margin:0}
-.bncc-about-areas{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.bncc-about-area{padding:14px 16px;border-radius:14px;border:1px solid var(--bncc-border);display:flex;flex-direction:column;gap:6px;transition:border-color .2s}
-.bncc-about-area[data-color="purple"]{background:rgba(124,111,247,.06)}
-.bncc-about-area[data-color="blue"]{background:rgba(33,150,243,.06)}
-.bncc-about-area[data-color="amber"]{background:rgba(255,184,48,.06)}
-.bncc-about-area:hover[data-color="purple"]{border-color:rgba(124,111,247,.4)}
-.bncc-about-area:hover[data-color="blue"]{border-color:rgba(33,150,243,.4)}
-.bncc-about-area:hover[data-color="amber"]{border-color:rgba(255,184,48,.4)}
-.bncc-about-area-icon{font-size:1.4rem;line-height:1}
-.bncc-about-area-name{font-size:.82rem;font-weight:700;color:var(--fg)}
-.bncc-about-area-desc{font-size:.75rem;color:var(--muted);line-height:1.45}
+/* ── BNCC ABOUT SECTION ─────────────────────────────────── */
+.bncc-about-section{position:relative;margin:0 0 64px;padding:64px 24px 72px;overflow:hidden;
+  background:linear-gradient(135deg,rgba(0,212,180,.13) 0%,rgba(0,80,70,.18) 40%,rgba(0,30,60,.22) 100%);
+  border-top:1px solid rgba(0,212,180,.2);border-bottom:1px solid rgba(0,212,180,.12)}
+.bncc-about-bg-glow{position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 70% 80% at 15% 50%,rgba(0,212,180,.12) 0%,transparent 65%),
+             radial-gradient(ellipse 50% 60% at 90% 20%,rgba(33,150,243,.1) 0%,transparent 60%)}
+.bncc-about-content{max-width:880px;margin:0 auto;position:relative;z-index:1}
+.bncc-about-header{text-align:center;margin-bottom:44px}
+.bncc-about-tag{display:inline-flex;align-items:center;gap:7px;padding:6px 16px;border-radius:100px;
+  background:rgba(0,212,180,.15);border:1px solid rgba(0,212,180,.3);
+  font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--bncc-teal);margin-bottom:18px}
+.bncc-about-h2{font-family:'Syne',sans-serif;font-size:clamp(1.6rem,4vw,2.6rem);font-weight:800;
+  line-height:1.1;letter-spacing:-.03em;color:#fff;margin-bottom:18px}
+.bncc-about-h2-hl{background:linear-gradient(135deg,var(--bncc-teal),var(--bncc-lime));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.bncc-about-lead{font-size:1rem;color:rgba(255,255,255,.65);line-height:1.7;max-width:680px;margin:0 auto}
+.bncc-about-lead strong{color:rgba(255,255,255,.9);font-weight:600}
+
+/* Accordion */
+.bncc-about-accordion{display:flex;flex-direction:column;gap:10px}
+.bncc-acc-item{border-radius:16px;border:1px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.04);cursor:pointer;transition:border-color .25s,background .25s;overflow:hidden}
+.bncc-acc-item[data-color="purple"]:hover,.bncc-acc-item[data-color="purple"].open{border-color:rgba(124,111,247,.45);background:rgba(124,111,247,.08)}
+.bncc-acc-item[data-color="blue"]:hover,.bncc-acc-item[data-color="blue"].open{border-color:rgba(33,150,243,.45);background:rgba(33,150,243,.08)}
+.bncc-acc-item[data-color="amber"]:hover,.bncc-acc-item[data-color="amber"].open{border-color:rgba(255,184,48,.45);background:rgba(255,184,48,.08)}
+.bncc-acc-head{display:flex;align-items:center;gap:16px;padding:20px 24px;user-select:none}
+.bncc-acc-icon{font-size:1.8rem;line-height:1;flex-shrink:0}
+.bncc-acc-title-wrap{flex:1;min-width:0}
+.bncc-acc-title{font-size:1.05rem;font-weight:700;color:#fff;margin-bottom:3px}
+.bncc-acc-sub{font-size:.8rem;color:rgba(255,255,255,.5)}
+.bncc-acc-arrow{font-size:1.4rem;color:rgba(255,255,255,.4);transition:transform .3s,color .25s;flex-shrink:0;font-style:normal}
+.bncc-acc-item.open .bncc-acc-arrow{transform:rotate(90deg);color:rgba(255,255,255,.75)}
+.bncc-acc-body{max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.4,0,.2,1)}
+.bncc-acc-item.open .bncc-acc-body{max-height:300px}
+.bncc-acc-body>p{margin:0 24px 14px;font-size:.9rem;color:rgba(255,255,255,.65);line-height:1.65}
+.bncc-acc-body>p strong{color:#fff;font-weight:600}
+.bncc-acc-examples{display:flex;flex-wrap:wrap;gap:8px;margin:0 24px 14px}
+.bncc-acc-examples span{padding:5px 13px;border-radius:100px;font-size:.75rem;font-weight:600;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.13);color:rgba(255,255,255,.75)}
+.bncc-acc-codes{margin:0 24px 20px;font-size:.72rem;color:rgba(255,255,255,.35);font-family:monospace;letter-spacing:.02em}
 
 /* ── CONFIGURATION PANEL ─────────────────────────────────── */
 .bncc-cfg-wrap{padding:28px 24px 32px;background:rgba(0,212,180,.04);border:1px solid var(--bncc-border);border-radius:20px;display:flex;flex-direction:column;gap:24px}
@@ -630,8 +654,13 @@
   .bncc-gen-ideas-wrap{padding:18px 16px}
 }
 @media(max-width:780px){
-  .bncc-about-inner{grid-template-columns:1fr;gap:20px;padding:20px 18px}
-  .bncc-about-areas{grid-template-columns:1fr}
+  .bncc-about-section{padding:44px 16px 52px;margin-bottom:40px}
+  .bncc-about-h2{font-size:1.5rem}
+  .bncc-about-lead{font-size:.88rem}
+  .bncc-acc-head{padding:16px 18px;gap:12px}
+  .bncc-acc-icon{font-size:1.5rem}
+  .bncc-acc-title{font-size:.95rem}
+  .bncc-acc-body>p,.bncc-acc-examples,.bncc-acc-codes{margin-left:18px;margin-right:18px}
   .bncc-cfg-grid{grid-template-columns:1fr}
   .bncc-cfg-wrap{padding:20px 16px 24px}
   .bncc-search-box{margin:0 16px 40px;border-radius:16px;padding:16px 14px 18px}
