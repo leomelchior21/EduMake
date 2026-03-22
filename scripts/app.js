@@ -242,8 +242,9 @@ async function _runDeepening(idea, opts = {}) {
   const rcont = opts.targetEl || document.getElementById('rcont');
   showLoading(rcont, `Aprofundando com ${esc(idea.tool)}`);
 
-  const queryCtx = `${idea.title}: ${idea.description}. Ferramenta principal: ${idea.tool}. Contexto: ${opts.queryCtx || (currentResultData?.query_understood||'')+' — '+(currentResultData?.nivel||'')}${opts.bnccCode ? '. Código BNCC obrigatório: '+opts.bnccCode : ''}`;
-  const tools = smartLocalSearch(currentResultData.query_understood||'');
+  const baseCtx = opts.queryCtx || (currentResultData?.query_understood ? currentResultData.query_understood + ' — ' + (currentResultData.nivel||'') : '');
+  const queryCtx = `${idea.title}: ${idea.description}. Ferramenta principal: ${idea.tool}${baseCtx ? '. Contexto: '+baseCtx : ''}${opts.bnccCode ? '. Código BNCC obrigatório: '+opts.bnccCode : ''}`;
+  const tools = smartLocalSearch(baseCtx || idea.title || '');
   const toolName = idea.tool;
   const toolsSlim = JSON.stringify(tools.slice(0,10).map(t=>({nome:t.name,cat:t.category})));
 

@@ -843,42 +843,136 @@ function renderAplicarCards(data, ctx) {
     <div class="bap-deep-view hidden" id="bap-deep-view"></div>`;
 }
 
-async function bnccChooseIdea(idx) {
-  const CAT_KEYS  = ['ferramenta', 'jogo', 'steam'];
-  const NAME_KEYS = ['ferramenta', 'jogo', 'atividade'];
-  const EMOJIS    = ['🛠️', '🎮', '⚗️'];
-  const cat     = CAT_KEYS[idx];
-  const nameKey = NAME_KEYS[idx];
-  const d = _aplicarData?.[cat];
+const _BAP_CATS = [
+  { key:'ferramenta', nameKey:'ferramenta', emoji:'🛠️', label:'Ferramenta Digital', cls:'bap-tool' },
+  { key:'jogo',       nameKey:'jogo',       emoji:'🎮', label:'Jogo / Gamificação', cls:'bap-game' },
+  { key:'steam',      nameKey:'atividade',  emoji:'⚗️', label:'STEAM / Prática',   cls:'bap-steam' }
+];
+
+function bnccChooseIdea(idx) {
+  const cat = _BAP_CATS[idx];
+  const d   = _aplicarData?.[cat.key];
   if (!d) return;
 
-  const grid    = document.getElementById('bap-ideas-grid');
+  const grid     = document.getElementById('bap-ideas-grid');
   const deepView = document.getElementById('bap-deep-view');
   if (!grid || !deepView) return;
 
   grid.classList.add('hidden');
   deepView.classList.remove('hidden');
+  deepView.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  const bnccSkill = d.bncc ? BNCC_SKILLS.find(s => s.code === d.bncc) : null;
+  const resourceName = d[cat.nameKey] || '';
+
+  deepView.innerHTML = `
+    <div class="bncc-cfg-wrap">
+      <button class="bncc-cfg-back" onclick="bnccShowGrid()">← Voltar às 3 ideias</button>
+
+      <div class="bncc-cfg-idea-preview ${cat.cls}">
+        <div class="bncc-cfg-idea-top">
+          <span class="bap-badge">${cat.emoji} ${cat.label}</span>
+          ${d.bncc ? `<span class="bap-bncc-code">${d.bncc}</span>` : ''}
+        </div>
+        <div class="bncc-cfg-idea-title">${d.titulo}</div>
+        <div class="bncc-cfg-idea-desc">${d.descricao}</div>
+        <div class="bap-resource"><span class="bap-resource-lbl">${cat.nameKey==='atividade'?'Atividade':cat.nameKey==='jogo'?'Jogo':'Ferramenta'}:</span> <span class="bap-resource-name">${resourceName}</span></div>
+        ${bnccSkill ? `<div class="bncc-cfg-bncc-line">🔵 ${bnccSkill.title}</div>` : ''}
+      </div>
+
+      <div class="bncc-cfg-section-title">Configure sua aula</div>
+
+      <div class="bncc-cfg-grid">
+        <div class="bncc-cfg-field">
+          <label class="bncc-cfg-lbl">📊 Método avaliativo</label>
+          <select id="cfg-avaliacao" class="bncc-cfg-select">
+            <option value="">Escolha...</option>
+            <option>Rubrica de processo</option>
+            <option>Portfólio digital</option>
+            <option>Autoavaliação</option>
+            <option>Avaliação por pares</option>
+            <option>Observação direta</option>
+            <option>Apresentação oral</option>
+            <option>Prova prática</option>
+          </select>
+        </div>
+
+        <div class="bncc-cfg-field">
+          <label class="bncc-cfg-lbl">📅 Número de aulas</label>
+          <div class="bncc-cfg-pills" data-group="aulas">
+            ${['1 aula','2 aulas','3 aulas','4+ aulas'].map(v=>`<button class="bncc-cfg-pill" data-group="aulas" data-val="${v}" onclick="bnccCfgPill(this,'aulas')">${v}</button>`).join('')}
+          </div>
+        </div>
+
+        <div class="bncc-cfg-field">
+          <label class="bncc-cfg-lbl">👥 Alunos</label>
+          <div class="bncc-cfg-pills" data-group="alunos">
+            ${['menos de 20','20 a 30','30 a 40','mais de 40'].map(v=>`<button class="bncc-cfg-pill" data-group="alunos" data-val="${v} alunos" onclick="bnccCfgPill(this,'alunos')">${v}</button>`).join('')}
+          </div>
+        </div>
+
+        <div class="bncc-cfg-field">
+          <label class="bncc-cfg-lbl">💻 Recursos disponíveis</label>
+          <div class="bncc-cfg-checks">
+            ${[['computadores ou tablets','💻 Computadores/tablets'],['celulares dos alunos','📱 Celulares'],['projetor','📽️ Projetor'],['kit maker e materiais','🔧 Kit maker'],['sem tecnologia (desplugado)','✋ Sem tecnologia']].map(([v,l])=>`<label class="bncc-cfg-check"><input type="checkbox" value="${v}"/> ${l}</label>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div class="bncc-cfg-field bncc-cfg-livre-wrap">
+        <label class="bncc-cfg-lbl">✏️ Escreva o que quiser</label>
+        <textarea id="cfg-livre" class="bncc-cfg-textarea" rows="3" placeholder="Objetivos específicos, dificuldades da turma, projetos em andamento, datas, contexto cultural…"></textarea>
+      </div>
+
+      <button class="bncc-cfg-go" onclick="bnccRunFromConfig(${idx})">
+        ✦ Aprofundar esta aula →
+      </button>
+    </div>`;
+}
+
+function bnccCfgPill(el, group) {
+  document.querySelectorAll(`.bncc-cfg-pill[data-group="${group}"]`).forEach(p => p.classList.remove('active'));
+  el.classList.toggle('active');
+}
+
+async function bnccRunFromConfig(idx) {
+  const cat = _BAP_CATS[idx];
+  const d   = _aplicarData?.[cat.key];
+  if (!d) return;
+
+  const avaliacao = document.getElementById('cfg-avaliacao')?.value || '';
+  const aulas     = document.querySelector(`.bncc-cfg-pill.active[data-group="aulas"]`)?.dataset.val || '';
+  const alunos    = document.querySelector(`.bncc-cfg-pill.active[data-group="alunos"]`)?.dataset.val || '';
+  const recursos  = [...document.querySelectorAll('.bncc-cfg-check input:checked')].map(c => c.value).join(', ');
+  const livre     = document.getElementById('cfg-livre')?.value.trim() || '';
+
+  const disc  = document.getElementById('bncc-g-disc')?.value.trim()  || '';
+  const serie = document.getElementById('bncc-g-serie')?.value.trim() || '';
+  const tema  = document.getElementById('bncc-g-tema')?.value.trim()  || '';
+
+  const ctxParts = [disc, tema, serie ? `para ${serie}` : ''].filter(Boolean);
+  if (aulas)     ctxParts.push(aulas);
+  if (alunos)    ctxParts.push(alunos);
+  if (avaliacao) ctxParts.push(`avaliação por ${avaliacao}`);
+  if (recursos)  ctxParts.push(`recursos disponíveis: ${recursos}`);
+  if (livre)     ctxParts.push(`observações do professor: ${livre}`);
 
   const idea = {
     id: idx + 1,
     title: d.titulo,
     description: d.descricao,
-    tool: d[nameKey] || '',
-    tool_emoji: EMOJIS[idx],
+    tool: d[cat.nameKey] || '',
+    tool_emoji: cat.emoji,
     bncc_codes: d.bncc ? [d.bncc] : []
   };
 
-  const disc  = document.getElementById('bncc-g-disc')?.value.trim()  || '';
-  const serie = document.getElementById('bncc-g-serie')?.value.trim() || '';
-  const tema  = document.getElementById('bncc-g-tema')?.value.trim()  || '';
-  const queryCtx = [disc, tema, serie ? `para ${serie}` : ''].filter(Boolean).join(', ');
-
+  const deepView = document.getElementById('bap-deep-view');
   const opts = {
-    targetEl:        deepView,
-    backFn:          'bnccShowGrid()',
-    backLabel:       '← Voltar às 3 ideias',
-    bnccCode:        d.bncc || '',
-    queryCtx:        queryCtx,
+    targetEl:         deepView,
+    backFn:           `bnccChooseIdea(${idx})`,
+    backLabel:        '← Voltar à configuração',
+    bnccCode:         d.bncc || '',
+    queryCtx:         ctxParts.join('. '),
     showFinalizeArea: true
   };
 
