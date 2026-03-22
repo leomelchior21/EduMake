@@ -227,25 +227,23 @@ function getSkillQuickTools(skill) {
 }
 
 function buildSkillCard(s) {
-  const eixoLabel = {pc:'PC', md:'MD', cd:'CD'}[s.eixo] || s.eixo.toUpperCase();
+  const eixoLabel = { pc:'Pensamento Computacional', md:'Mundo Digital', cd:'Cultura Digital' }[s.eixo] || s.eixo.toUpperCase();
+  const eixoShort = { pc:'PC', md:'MD', cd:'CD' }[s.eixo] || s.eixo.toUpperCase();
   const quickTools = getSkillQuickTools(s);
-  const toolLinks = quickTools.map(t => {
-    const td = TOOLS.find(x => x.tool.toLowerCase() === t.toLowerCase());
-    const href = td ? td.link : '#';
-    const emoji = td ? (td.category === 'Jogos' ? '🎮' : '🔧') : '🔧';
-    return `<a class="bsg-tool-link" href="${href}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${emoji} ${esc(t)}</a>`;
-  }).join('');
+  const toolPills = quickTools.map(t =>
+    `<span class="bsg-qtool">${t}</span>`
+  ).join('');
 
   return `<div class="bsg-card" data-code="${s.code}" onclick="toggleSkillCard('${s.code}')">
-    <div class="bsg-card-head">
+    <div class="bsg-card-meta">
       <span class="bsg-code">${s.code}</span>
-      <span class="bsg-eixo ${s.eixo}">${eixoLabel}</span>
+      <span class="bsg-eixo ${s.eixo}" title="${eixoLabel}">${eixoShort}</span>
       <span class="bsg-grade">${s.grade || ''}</span>
       <button class="bsg-close-btn" onclick="event.stopPropagation();toggleSkillCard('${s.code}')" title="Fechar">×</button>
     </div>
     <div class="bsg-title">${esc(s.title)}</div>
-    ${toolLinks ? `<div class="bsg-tools">${toolLinks}</div>` : ''}
-    <button class="bsg-ver-btn">Ver ferramentas e sugestões →</button>
+    ${toolPills ? `<div class="bsg-qtools">${toolPills}</div>` : ''}
+    <div class="bsg-expand-hint">Toque para explorar recursos e gerar ideias →</div>
     <div class="bsg-inline-panel" id="bsg-panel-${s.code}"></div>
   </div>`;
 }
@@ -280,54 +278,76 @@ function renderInlineSkillPanel(skill, panel) {
   currentBnccSkill = skill;
   const res = BNCC_RES[skill.code] || getBnccResFallback(skill.code, skill);
   const steam = (res.steam && res.steam.length) ? res.steam : getBnccSteamFallback(skill);
+  const eixoFull = { pc:'Pensamento Computacional', md:'Mundo Digital', cd:'Cultura Digital' }[skill.eixo] || skill.eixo;
+
   let h = '';
 
-  // Description
-  h += `<p class="bsg-panel-desc">${esc(skill.desc)}</p>`;
+  // ── Description block
+  h += `<div class="bsg-desc-block">
+    <div class="bsg-desc-accent"></div>
+    <p class="bsg-desc-text">${esc(skill.desc)}</p>
+  </div>`;
 
-  // Resource chips — 3 color groups
-  h += `<div class="bsg-panel-chips">`;
+  // ── Resources
+  h += `<div class="bsg-res-wrap">`;
+
   if (res.tools?.length) {
-    h += `<div class="bsg-panel-chip-row"><span class="bsg-chip-lbl tool">🔧 Ferramentas</span>`;
+    h += `<div class="bsg-res-group">
+      <div class="bsg-res-hd tool"><span class="bsg-res-ico">🔧</span>Ferramentas digitais</div>
+      <div class="bsg-res-chips">`;
     res.tools.forEach(t => {
       const toolName = t.name || t;
       const td = TOOLS.find(x => x.tool.toLowerCase() === toolName.toLowerCase());
       const href = td ? td.link : (t.url || '#');
-      h += `<a class="bsg-chip tool" href="${esc(href)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${esc(toolName)}</a>`;
+      h += `<a class="bsg-rc tool" href="${esc(href)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${esc(toolName)} ↗</a>`;
     });
-    h += `</div>`;
+    h += `</div></div>`;
   }
+
   if (res.games?.length) {
-    h += `<div class="bsg-panel-chip-row"><span class="bsg-chip-lbl game">🎮 Jogos</span>`;
+    h += `<div class="bsg-res-group">
+      <div class="bsg-res-hd game"><span class="bsg-res-ico">🎮</span>Jogos e gamificação</div>
+      <div class="bsg-res-chips">`;
     res.games.forEach(g => {
       const gameName = g.name || g;
       const href = g.url || '#';
-      const tag = href !== '#' ? `<a class="bsg-chip game" href="${esc(href)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${esc(gameName)}</a>`
-                               : `<span class="bsg-chip game">${esc(gameName)}</span>`;
-      h += tag;
+      h += href !== '#'
+        ? `<a class="bsg-rc game" href="${esc(href)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${esc(gameName)} ↗</a>`
+        : `<span class="bsg-rc game">${esc(gameName)}</span>`;
     });
-    h += `</div>`;
+    h += `</div></div>`;
   }
+
   if (steam?.length) {
-    h += `<div class="bsg-panel-chip-row"><span class="bsg-chip-lbl steam">🌱 STEAM</span>`;
+    h += `<div class="bsg-res-group">
+      <div class="bsg-res-hd steam"><span class="bsg-res-ico">🌱</span>Atividades STEAM</div>
+      <div class="bsg-res-chips">`;
     steam.forEach(s => {
       const href = s.url || '#';
-      const tag = href !== '#' ? `<a class="bsg-chip steam" href="${esc(href)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${esc(s.name)}</a>`
-                               : `<span class="bsg-chip steam">${esc(s.name)}</span>`;
-      h += tag;
+      h += href !== '#'
+        ? `<a class="bsg-rc steam" href="${esc(href)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${esc(s.name)} ↗</a>`
+        : `<span class="bsg-rc steam">${esc(s.name)}</span>`;
     });
-    h += `</div>`;
+    h += `</div></div>`;
   }
+
   h += `</div>`;
 
-  // "Que tal ideias?" CTA
-  h += `<div class="bsg-ideas-section">
-    <div class="bsg-ideas-heading">💡 Que tal ideias pra esse código?</div>
-    <div class="bsg-ideas-sub">Conte sobre sua aula — tema, turma, recursos disponíveis. A IA gera 5 ideias completas com manual de uso.</div>
-    <textarea class="bsg-ideas-textarea" id="bsg-ctx-${skill.code}"
-      placeholder="Ex: tema de frações, 28 alunos, 5º ano, poucos computadores, turma animada…"
+  // ── AI CTA
+  h += `<div class="bsg-cta-block">
+    <div class="bsg-cta-top">
+      <div class="bsg-cta-spark">✦</div>
+      <div>
+        <div class="bsg-cta-title">Gerar ideias para esta habilidade</div>
+        <div class="bsg-cta-sub">A IA cria 3 propostas completas — ferramenta, jogo e STEAM — no contexto da sua turma</div>
+      </div>
+    </div>
+    <textarea class="bsg-cta-textarea" id="bsg-ctx-${skill.code}"
+      placeholder="Opcional: 28 alunos, 6º ano, tema de meio ambiente, poucos computadores…"
       onclick="event.stopPropagation()" rows="2"></textarea>
-    <button class="bsg-ideas-btn" onclick="event.stopPropagation();generateIdeasFromCard('${skill.code}')">Vamos lá! →</button>
+    <button class="bsg-cta-btn" onclick="event.stopPropagation();generateIdeasFromCard('${skill.code}')">
+      ✦ Quero ideias para esta habilidade →
+    </button>
   </div>`;
 
   panel.innerHTML = h;
