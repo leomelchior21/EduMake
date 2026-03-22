@@ -38,6 +38,10 @@ function showLoading(el, msg, sub0) {
   }, 5000);
 }
 
+function stopLoading() {
+  if (_loadingTimer) { clearInterval(_loadingTimer); _loadingTimer = null; }
+}
+
 function setMode(m) {
   currentMode = m;
   document.getElementById('mode-nl').classList.toggle('active', m==='nl');

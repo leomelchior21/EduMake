@@ -773,6 +773,7 @@ FORMATO EXATO (mantenha todos os campos, textos curtos):
     if (!match) throw new Error('JSON não encontrado');
     const cleaned = match[0].replace(/,\s*([}\]])/g, '$1');
     _aplicarData = JSON.parse(cleaned);
+    stopLoading();
     renderAplicarCards(_aplicarData, ctx);
   } catch(e) {
     area.innerHTML = `<div class="bap-error">❌ Erro ao gerar ideias: ${e.message}</div>`;
