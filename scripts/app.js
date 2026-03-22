@@ -5,6 +5,7 @@ let currentModalTool = null;
 let currentDeepeningIdea = null;
 let currentFicha = null;
 let _loadingTimer = null;
+const _searchCache = new Map();
 
 const AVAL_METHODS = [
   'Rubrica de processo','Portfólio digital','Autoavaliação',
@@ -48,6 +49,9 @@ function setNL(t) { setMode('nl'); document.getElementById('nl-input').value = t
 
 // ── DEEPSEEK CALL ──────────────────────────────────────────
 async function callDeepSeek(query) {
+  const cacheKey = query.toLowerCase().trim();
+  if (_searchCache.has(cacheKey)) return _searchCache.get(cacheKey);
+
   const tools = smartLocalSearch(query);
 
   const sys = `Você é especialista em EdTech para o sistema educacional brasileiro (BNCC).
@@ -93,6 +97,8 @@ FORMATO EXATO (descrições curtas e objetivas — máximo 1 frase cada):
   const content = parsed.choices?.[0]?.message?.content || '';
   const jsonMatch = content.match(/\{[\s\S]*\}/);
   if (!jsonMatch) throw new Error('Modelo não retornou JSON. Resposta: ' + content.slice(0,200));
+  if (_searchCache.size >= 15) _searchCache.delete(_searchCache.keys().next().value);
+  _searchCache.set(cacheKey, jsonMatch[0]);
   return jsonMatch[0];
 }
 
@@ -230,11 +236,12 @@ async function _runDeepening(idea) {
   const queryCtx = `${idea.title}: ${idea.description}. Ferramenta principal: ${idea.tool}. Contexto: ${currentResultData.query_understood||''} — ${currentResultData.nivel||''}`;
   const tools = smartLocalSearch(currentResultData.query_understood||'');
   const toolName = idea.tool;
+  const toolsSlim = JSON.stringify(tools.slice(0,10).map(t=>({nome:t.name,cat:t.category})));
 
   const sys = `Você é especialista em EdTech e didática brasileira. Aprofunde a ideia com guia completo e prático.
 
 FERRAMENTAS DISPONÍVEIS (para alternativas — devem ser DIFERENTES de "${toolName}"):
-${JSON.stringify(tools.slice(0,40))}
+${toolsSlim}
 
 REGRAS ABSOLUTAS — TODAS AS SEÇÕES SÃO OBRIGATÓRIAS:
 - Responda APENAS com JSON puro, sem markdown, sem backticks
@@ -253,12 +260,7 @@ FORMATO EXATO (copie esta estrutura exatamente):
     const resp = await fetch(DEEPSEEK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DEEPSEEK_KEY}` },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [{ role: 'system', content: sys }, { role: 'user', content: queryCtx }],
-        max_tokens: 2900,
-        temperature: 0.4
-      })
+      body: JSON.stringify({ model: 'deepseek-chat', messages: [{ role: 'system', content: sys }, { role: 'user', content: queryCtx }], max_tokens: 2900, temperature: 0.4 })
     });
     const rawText = await resp.text();
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);

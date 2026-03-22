@@ -8,11 +8,15 @@ let expandedSkillCode = null;
 function initBncc() {
   if (bnccInited) return;
   bnccInited = true;
-  buildBnccExample();
-  buildAgeGrid();
-  buildGradeGrid();
-  buildThemeGrid();
-  buildPillarFilters();
+  // Populate theme select
+  const themeSelect = document.getElementById('bncc-filter-tema');
+  if (themeSelect) {
+    [...new Set(BNCC_SKILLS.map(s => s.tema))].sort().forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t; opt.textContent = t;
+      themeSelect.appendChild(opt);
+    });
+  }
   buildSkillGrid();
 }
 
@@ -420,32 +424,88 @@ function renderBnccSkill(skill) {
 
 function renderBnccResources(data) {
   const area = document.getElementById('bncc-res-area');
-  if (!data||(!data.tools&&!data.games)) { area.innerHTML=''; return; }
+  if (!data) { area.innerHTML = ''; return; }
 
-  const renderItems = (items, type) => items.map(item=>`
-    <div class="bncc-res-item" onclick="window.open('${item.url}','_blank')">
-      <div class="bncc-res-item-top">
-        <div class="bncc-res-item-icon ${type}">${item.icon}</div>
-        <div>
-          <div class="bncc-res-item-name">${esc(item.name)}</div>
-          <div class="bncc-res-item-cat">${esc(item.cat)}</div>
-        </div>
-      </div>
-      <div class="bncc-res-item-how">📋 <strong>Como usar:</strong> ${item.how}</div>
-      <a class="bncc-res-item-link" href="${item.url}" target="_blank" onclick="event.stopPropagation()">Acessar ↗</a>
-    </div>`).join('');
+  const steam = data.steam && data.steam.length ? data.steam : getBnccSteamFallback(currentBnccSkill);
 
-  area.innerHTML = `
-    <div class="bncc-res-grid">
-      <div class="bncc-res-section">
-        <div class="bncc-res-section-title tools">🛠 Ferramentas para o professor</div>
-        ${renderItems(data.tools,'tool')}
-      </div>
-      <div class="bncc-res-section">
-        <div class="bncc-res-section-title games">🎮 Jogos e atividades para os alunos</div>
-        ${renderItems(data.games,'game')}
-      </div>
+  const renderCol = (items, colClass, icon, label) => {
+    const itemsHtml = (items || []).map(item => {
+      const href = item.url || '#';
+      const linkHtml = href !== '#' ? `<a class="bncc-col-item-link" href="${esc(href)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Acessar ↗</a>` : '';
+      return `<div class="bncc-col-item">
+        <div class="bncc-col-item-name">${esc(item.name)}${linkHtml}</div>
+        <div class="bncc-col-item-how"><strong>Como usar:</strong> ${item.how}</div>
+      </div>`;
+    }).join('');
+    return `<div class="bncc-res-col ${colClass}">
+      <div class="bncc-col-hd"><span class="bncc-col-hd-icon">${icon}</span>${label}</div>
+      <div class="bncc-col-body">${itemsHtml}</div>
     </div>`;
+  };
+
+  area.innerHTML = `<div class="bncc-3col">
+    ${renderCol(data.tools, 'bncc-col-tool', '🔧', 'Ferramenta digital')}
+    ${renderCol(data.games, 'bncc-col-game', '🎮', 'Jogo / atividade')}
+    ${renderCol(steam,      'bncc-col-steam', '🌱', 'STEAM · mão na massa')}
+  </div>`;
+}
+
+function getBnccSteamFallback(skill) {
+  const tema = skill ? (skill.tema || 'Computação') : 'Computação';
+  const nivel = skill ? skill.nivel : 'EF2';
+
+  const STEAM_BY_TEMA = {
+    'Algoritmos': [
+      {name:'Dança algorítmica',icon:'💃',url:'',how:`Alunos "programam" colegas com cartões de setas para chegar a um destino. Quem chegou errado? Tem bug no algoritmo — hora de debugar!`},
+      {name:'Mapa de fita no chão',icon:'🗺',url:'',how:`Cole fita colorida no chão formando um percurso. Alunos escrevem o algoritmo em papel <em>antes</em> de executar — descobrem erros de lógica de forma física.`},
+      {name:'Bee-Bot / robô de papel',icon:'🐝',url:'https://bee-bot.us',how:`Com Bee-Bot real ou um robô de papel dobrado, criar mapas temáticos e programar sequências de movimentos sem tela.`}
+    ],
+    'Decomposição': [
+      {name:'Quebra-cabeça de processos',icon:'🧩',url:'',how:`Escrever etapas de uma tarefa (fritar ovo, escovar dentes) em cartões separados. Grupos colocam na ordem certa — entendem decomposição na prática.`},
+      {name:'Construção em etapas',icon:'🏗',url:'',how:`Dar a cada grupo uma tarefa complexa (montar uma ponte de palito). Primeiro decompor em subtarefas, depois executar. Refletir sobre o que facilitou.`},
+      {name:'Jogo de receitas',icon:'📜',url:'',how:`Cada grupo cria a "receita" (algoritmo) para um processo cotidiano. Outro grupo segue a receita à risca — se travar, a receita tem um bug.`}
+    ],
+    'Lógica': [
+      {name:'Jogo de verdade/falso com corpo',icon:'🙋',url:'',how:`Professor faz afirmações. Alunos ficam de pé (verdadeiro) ou sentados (falso). Adicionar negações — "não é verdade que…" — eleva o nível.`},
+      {name:'CS Unplugged — Lógica',icon:'🎲',url:'https://csunplugged.org',how:`Atividades físicas do CS Unplugged sobre circuitos lógicos com papel e cartas. Alunos constroem portas AND/OR com materiais simples.`},
+      {name:'Debate de sentenças lógicas',icon:'🗣',url:'',how:`Criar frases ambíguas do cotidiano e debater: são verdadeiras ou falsas? Conectar com como computadores tomam decisões com 0 e 1.`}
+    ],
+    'Programação': [
+      {name:'Micro:bit',icon:'💡',url:'https://microbit.org',how:`Criar projetos físicos: termômetro, dado eletrônico, mensagem luminosa. Código em blocos visível + resultado imediato no hardware.`},
+      {name:'Arduino + LED',icon:'⚡',url:'https://arduino.cc',how:`Acender LEDs em sequência com código. Alunos veem cada linha de código virar uma luz piscando — abstrato vira concreto.`},
+      {name:'Cartões de código desplugado',icon:'🃏',url:'',how:`Escrever algoritmos em cartões físicos. Trocar com colega para "executar na mão" — erros de lógica ficam evidentes sem computador.`}
+    ],
+    'Dados': [
+      {name:'Infográfico físico com post-its',icon:'📊',url:'',how:`Pesquisa de campo com a turma (filme favorito, esporte…). Montar gráfico físico na lousa com post-its coloridos. Discutir o que os dados mostram.`},
+      {name:'Binário com cartões',icon:'🃏',url:'',how:`Representar números em binário com cartões brancos/pretos. Alunos descobrem como letras viram números — base do funcionamento de computadores.`},
+      {name:'CS Unplugged — Dados',icon:'🧩',url:'https://csunplugged.org',how:`Atividades físicas sobre codificação e compressão de dados. Compactar imagens "à mão" com sequências de cores — sem computador.`}
+    ],
+    'Cidadania Digital': [
+      {name:'Teatro de situações digitais',icon:'🎭',url:'',how:`Grupos dramatizam situações: receber fake news, cyberbullying, senha vazada. Classe discute o que fazer — mais memorável que slides.`},
+      {name:'Zine digital x analógico',icon:'📔',url:'',how:`Criar um zine (mini-revista dobrada) com dicas de segurança digital. Processo analógico para comunicar tema digital — reflexão dupla.`},
+      {name:'Mapa de pegada digital',icon:'🗺',url:'',how:`Em papel, alunos listam tudo que fizeram online na semana e avaliam: o que fica gravado? O que pode ser visto por outros? Torna o abstrato tangível.`}
+    ],
+  };
+
+  const byTema = STEAM_BY_TEMA[tema];
+  if (byTema) return byTema;
+
+  // Generic fallback by nivel
+  if (nivel === 'EI' || nivel === 'EF1') return [
+    {name:'Dança algorítmica',icon:'💃',url:'',how:`Alunos programam colegas com cartões de setas. Ótima forma de trabalhar ${tema} sem tela.`},
+    {name:'Mapa no chão com fita',icon:'🗺',url:'',how:`Labirinto de fita no chão. Escrever o caminho no papel antes de caminhar — conecta lógica ao corpo.`},
+    {name:'Bee-Bot',icon:'🐝',url:'https://bee-bot.us',how:`Robô físico programado com botões. Criar mapas temáticos de ${tema} para navegar.`}
+  ];
+  if (nivel === 'EF2') return [
+    {name:'Micro:bit',icon:'💡',url:'https://microbit.org',how:`Projetos físicos ligados a ${tema}: sensores, LED, mensagens. Código em blocos com resultado imediato.`},
+    {name:'Jogo de tabuleiro criado pelos alunos',icon:'🎲',url:'',how:`Grupos criam um jogo físico que ensina ${tema}. Processo de design já desenvolve a habilidade.`},
+    {name:'CS Unplugged',icon:'🃏',url:'https://csunplugged.org',how:`Atividades físicas sem computador sobre ${tema}. Ótimo para turmas com poucos dispositivos.`}
+  ];
+  return [
+    {name:'Arduino',icon:'⚡',url:'https://arduino.cc',how:`Protótipos físicos ligados a ${tema}. Alunos constroem algo que funciona de verdade.`},
+    {name:'Hackathon de ideias',icon:'🚀',url:'',how:`Desafio de 1 aula: resolver um problema real usando ${tema}. Equipes pitchiam soluções.`},
+    {name:'CS Unplugged (avançado)',icon:'🧩',url:'https://csunplugged.org',how:`Atividades físicas avançadas para EM sobre ${tema}. Sem computador, alto engajamento.`}
+  ];
 }
 
 // ── FALLBACK RESOURCES ────────────────────────────────────
@@ -712,4 +772,22 @@ function copyAIOutput(btn) {
 
 function bnccCodeHint() {
   // Could add autocomplete in future
+}
+
+// ── HIDE RESULT (back to entry) ──────────────────────────
+function hideBnccResult() {
+  document.getElementById('bncc-results').classList.add('hidden');
+  const page = document.getElementById('bncc-page');
+  if (page) window.scrollTo({top: page.offsetTop - 80, behavior: 'smooth'});
+}
+
+// ── GENERATE IDEAS FOR BNCC SKILL ───────────────────────
+async function generateIdeasForBncc() {
+  if (!currentBnccSkill) return;
+  const skill = currentBnccSkill;
+  const ctx = (document.getElementById('bncc-ai-ctx')?.value || '').trim();
+  const query = `${skill.title} para ${skill.grade}${ctx ? ' — ' + ctx : ''}. Habilidade BNCC de Computação: ${skill.code}`;
+  showPage('home');
+  setNL(query);
+  await doSearch();
 }

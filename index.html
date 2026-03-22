@@ -291,56 +291,38 @@
       <span class="bncc-g2">sala de aula real</span>
     </h1>
     <p class="bncc-sub">
-      A BNCC de Computação define <strong>o que cada aluno deve aprender</strong>, do Berçário ao 3º EM.
-      Aqui você encontra o código certo, entende o que ele significa e já sai com
-      <strong>ferramentas e jogos prontos para usar</strong> — com manual de aplicação.
+      Você tem um <strong>código BNCC para cumprir</strong>, ou uma <strong>ideia de aula para explorar</strong>?
+      Escolha um caminho — saia com ferramentas, jogos e atividades prontas.
     </p>
   </div>
 
-  <!-- PILARES + BUSCA — bloco unificado -->
-  <div class="bncc-top-block">
+  <!-- ENTRY: Two paths -->
+  <div class="bncc-entry-wrap">
 
-    <!-- Pillars -->
-    <div class="bncc-pillars">
-      <div class="bncc-pillar" data-eixo="pc" onclick="togglePillar('pc')">
-        <div class="bncc-pillar-top">
-          <span class="bncc-pillar-icon">🧠</span>
-          <span class="bncc-pillar-tag pc">PC</span>
-        </div>
-        <h4>Pensamento Computacional</h4>
-        <p>Algoritmos, lógica, decomposição e reconhecimento de padrões.</p>
+    <div class="bncc-entry-card bncc-entry-code">
+      <div class="bncc-entry-icon">🔍</div>
+      <div class="bncc-entry-label">Já tenho o código BNCC</div>
+      <div class="bncc-entry-sub">Cole o código e descubra ferramentas e atividades prontas para a aula</div>
+      <div class="bncc-code-row">
+        <input class="bncc-code-input" id="bncc-code-input" placeholder="Ex: EF06CO02, EM13CO10…" onkeydown="if(event.key==='Enter')bnccSearch()"/>
+        <button class="bncc-go-btn" onclick="bnccSearch()">Buscar →</button>
       </div>
-      <div class="bncc-pillar" data-eixo="md" onclick="togglePillar('md')">
-        <div class="bncc-pillar-top">
-          <span class="bncc-pillar-icon">🌐</span>
-          <span class="bncc-pillar-tag md">MD</span>
-        </div>
-        <h4>Mundo Digital</h4>
-        <p>Como dispositivos, redes e dados funcionam na prática.</p>
-      </div>
-      <div class="bncc-pillar" data-eixo="cd" onclick="togglePillar('cd')">
-        <div class="bncc-pillar-top">
-          <span class="bncc-pillar-icon">🤝</span>
-          <span class="bncc-pillar-tag cd">CD</span>
-        </div>
-        <h4>Cultura Digital</h4>
-        <p>Uso ético, seguro e criativo da tecnologia na sociedade.</p>
+      <div class="bncc-chips">
+        <span class="bncc-chip" onclick="bnccQuick('EI03CO01')">EI03CO01</span>
+        <span class="bncc-chip" onclick="bnccQuick('EF01CO02')">EF01CO02</span>
+        <span class="bncc-chip" onclick="bnccQuick('EF03CO01')">EF03CO01</span>
+        <span class="bncc-chip" onclick="bnccQuick('EF06CO02')">EF06CO02</span>
+        <span class="bncc-chip" onclick="bnccQuick('EF07CO07')">EF07CO07</span>
+        <span class="bncc-chip" onclick="bnccQuick('EM13CO10')">EM13CO10</span>
       </div>
     </div>
 
-    <!-- Hint para filtro -->
-    <p class="bncc-pillar-hint">Clique nos pilares para filtrar as habilidades abaixo</p>
+    <div class="bncc-entry-or"><span>ou</span></div>
 
-    <!-- Separador -->
-    <div class="bncc-sep"><span>ou descreva sua aula</span></div>
-
-    <!-- Busca por descrição -->
-    <div class="bncc-nl-wrap">
-      <div class="bncc-nl-header">
-        <span class="bncc-nl-spark">✦ Busca por descrição</span>
-        <span class="bncc-nl-title">Descreva o que quer ensinar</span>
-        <span class="bncc-nl-sub">encontramos a habilidade BNCC ideal — você sai com ferramentas prontas para a aula</span>
-      </div>
+    <div class="bncc-entry-card bncc-entry-idea">
+      <div class="bncc-entry-icon">💡</div>
+      <div class="bncc-entry-label">Tenho uma ideia de aula</div>
+      <div class="bncc-entry-sub">Descreva o que quer ensinar — mapeamos o código BNCC certo e mostramos recursos</div>
       <div class="bncc-nl-row">
         <input class="bncc-nl-input" id="bncc-nl-input" placeholder="Ex: quero trabalhar algoritmos com 3º ano usando jogos…" onkeydown="if(event.key==='Enter')bnccNLSearch()"/>
         <button class="bncc-nl-btn" onclick="bnccNLSearch()">Buscar →</button>
@@ -349,34 +331,49 @@
         <span onclick="bnccNLFill('pensamento computacional para Educação Infantil')">🎈 Ed. Infantil</span>
         <span onclick="bnccNLFill('programação em blocos para 6º ano')">🧩 6º ano · Programação</span>
         <span onclick="bnccNLFill('segurança digital e ética para 8º ano')">🔒 8º ano · Segurança</span>
-        <span onclick="bnccNLFill('inteligência artificial para Ensino Médio')">🤖 EM · Tecnologia</span>
-        <span onclick="bnccNLFill('cibersegurança e privacidade para 9º ano')">🛡 9º ano · Ciberseg.</span>
+        <span onclick="bnccNLFill('inteligência artificial para Ensino Médio')">🤖 EM · IA</span>
       </div>
       <div id="bncc-nl-result" class="bncc-nl-result hidden"></div>
     </div>
 
   </div>
 
-  <!-- EXPLORER -->
-  <div class="bncc-explorer">
-    <div class="bncc-explorer-head">
-      <h2>Encontre a habilidade certa</h2>
-      <p>Filtre por pilar, nível escolar ou tema — ou busque pelo nome da atividade</p>
-    </div>
-
-    <!-- Example card (random) -->
-    <div class="bncc-example-card" id="bncc-example-card">
-      <div class="bncc-example-eyebrow">💡 Habilidade em destaque</div>
-      <div class="bncc-example-code" id="ex-code">EF03CO01</div>
-      <div class="bncc-example-title" id="ex-title">Associar os valores 'verdadeiro' e 'falso' a sentenças lógicas do dia a dia, fazendo uso de termos que indicam negação.</div>
-      <div class="bncc-example-inspo" id="ex-inspo">
-        <a class="bncc-example-inspo-item" href="https://scratch.mit.edu" target="_blank"><span>💻</span> Scratch</a>
-        <a class="bncc-example-inspo-item" href="https://code.org" target="_blank"><span>🎮</span> Code.org</a>
-        <a class="bncc-example-inspo-item" href="https://wordwall.net" target="_blank"><span>🃏</span> Wordwall</a>
+  <!-- SKILL RESULT -->
+  <div class="bncc-results hidden" id="bncc-results">
+    <div class="bncc-results-head">
+      <button class="bncc-back-btn" onclick="hideBnccResult()">← Voltar</button>
+      <div>
+        <div class="bncc-results-title" id="bncc-results-title">Habilidade</div>
+        <div class="bncc-results-code" id="bncc-results-code">—</div>
       </div>
     </div>
+    <div id="bncc-skill-area"></div>
+    <div id="bncc-res-area"></div>
 
-    <!-- FILTER BAR — Improvement 4 -->
+    <!-- Generate ideas CTA -->
+    <div class="bncc-gen-ideas-wrap">
+      <div class="bncc-gen-ideas-header">
+        <span class="bncc-gen-ideas-spark">✦</span>
+        <div>
+          <div class="bncc-gen-ideas-title">Quer mais opções personalizadas?</div>
+          <div class="bncc-gen-ideas-sub">A IA gera 5 ideias completas com manual de uso — no mesmo estilo da página inicial</div>
+        </div>
+      </div>
+      <div class="bncc-ai-context-wrap">
+        <label class="bncc-ai-ctx-label">Contexto da turma <span>(opcional — melhora muito o resultado)</span></label>
+        <textarea class="bncc-ai-ctx-input" id="bncc-ai-ctx" placeholder="Ex: 28 alunos, 6º ano, poucos computadores (1 por dupla)…" rows="2"></textarea>
+      </div>
+      <button class="bncc-gen-ideas-btn" onclick="generateIdeasForBncc()">✦ Gerar 5 ideias para esta habilidade</button>
+    </div>
+    <div class="bncc-ai-output hidden" id="bncc-ai-output"></div>
+  </div>
+
+  <!-- BROWSE: secondary -->
+  <div class="bncc-explorer">
+    <div class="bncc-explorer-head">
+      <h2>Explorar todas as habilidades</h2>
+      <p>Filtre por nível, tema ou busca livre — clique em qualquer habilidade para ver os recursos</p>
+    </div>
     <div id="bncc-filter-bar">
       <select class="bncc-filter-select" id="bncc-filter-nivel" onchange="filterSkillGrid()">
         <option value="">📚 Todos os níveis</option>
@@ -388,117 +385,11 @@
       <select class="bncc-filter-select" id="bncc-filter-tema" onchange="filterSkillGrid()">
         <option value="">🎨 Todos os temas</option>
       </select>
-      <input class="bncc-filter-search" id="bncc-filter-search" placeholder="🔍 Busca rápida por código ou palavra…" oninput="filterSkillGrid()"/>
+      <input class="bncc-filter-search" id="bncc-filter-search" placeholder="🔍 Busca por código ou palavra…" oninput="filterSkillGrid()"/>
     </div>
-
-    <!-- SKILL GRID — Improvement 4 -->
     <div id="bncc-skill-grid"></div>
-
-    <!-- Tabs (kept for backward compat — code search, age, grade, theme) -->
-    <div class="bncc-tabs">
-      <button class="bncc-tab active" data-tab="code" onclick="switchBnccTab('code')">🔍 Por código</button>
-      <button class="bncc-tab" data-tab="age" onclick="switchBnccTab('age')">🎂 Por faixa etária</button>
-      <button class="bncc-tab" data-tab="grade" onclick="switchBnccTab('grade')">📚 Por ano escolar</button>
-      <button class="bncc-tab" data-tab="theme" onclick="switchBnccTab('theme')">🎨 Por tema</button>
-    </div>
-
-    <!-- PANEL: Código -->
-    <div class="bncc-panel active" id="bncc-panel-code">
-      <div class="bncc-code-search">
-        <input class="bncc-code-input" id="bncc-code-input" placeholder="Ex: EF03CO01, EF06CO02, EM13CO10…" oninput="bnccCodeHint()" onkeydown="if(event.key==='Enter')bnccSearch()"/>
-        <button class="bncc-go-btn" onclick="bnccSearch()">Buscar habilidade →</button>
-      </div>
-      <div class="bncc-chips" id="bncc-code-chips">
-        <span class="bncc-chip" onclick="bnccQuick('EI03CO01')">EI03CO01</span>
-        <span class="bncc-chip" onclick="bnccQuick('EF01CO02')">EF01CO02</span>
-        <span class="bncc-chip" onclick="bnccQuick('EF03CO01')">EF03CO01</span>
-        <span class="bncc-chip" onclick="bnccQuick('EF05CO03')">EF05CO03</span>
-        <span class="bncc-chip" onclick="bnccQuick('EF06CO02')">EF06CO02</span>
-        <span class="bncc-chip" onclick="bnccQuick('EF07CO07')">EF07CO07</span>
-        <span class="bncc-chip" onclick="bnccQuick('EF08CO05')">EF08CO05</span>
-        <span class="bncc-chip" onclick="bnccQuick('EF09CO05')">EF09CO05</span>
-        <span class="bncc-chip" onclick="bnccQuick('EM13CO10')">EM13CO10</span>
-        <span class="bncc-chip" onclick="bnccQuick('EM13CO16')">EM13CO16</span>
-      </div>
-    </div>
-
-    <!-- PANEL: Faixa etária -->
-    <div class="bncc-panel" id="bncc-panel-age">
-      <div class="bncc-age-grid" id="bncc-age-grid"></div>
-    </div>
-
-    <!-- PANEL: Ano escolar -->
-    <div class="bncc-panel" id="bncc-panel-grade">
-      <div class="bncc-age-grid" id="bncc-grade-grid"></div>
-    </div>
-
-    <!-- PANEL: Tema -->
-    <div class="bncc-panel" id="bncc-panel-theme">
-      <div class="bncc-theme-grid" id="bncc-theme-grid"></div>
-    </div>
-
-    <!-- RESULTS (for NL search results and code/filter search) -->
-    <div class="bncc-results hidden" id="bncc-results">
-      <div class="bncc-results-head">
-        <div class="bncc-results-title" id="bncc-results-title">Habilidade</div>
-        <div class="bncc-results-code" id="bncc-results-code">—</div>
-      </div>
-      <div id="bncc-skill-area"></div>
-      <div id="bncc-res-area"></div>
-
-      <!-- AI PANEL — Improvement 2: title changed -->
-      <div class="bncc-ai-panel" id="bncc-ai-panel">
-        <div class="bncc-ai-header">
-          <span class="bncc-ai-spark">✦</span>
-          <span class="bncc-ai-title">Sugestões para esta habilidade</span>
-        </div>
-
-        <!-- Contexto da turma -->
-        <div class="bncc-ai-context-wrap">
-          <label class="bncc-ai-ctx-label">Conte sobre sua turma <span>(opcional — melhora muito os resultados)</span></label>
-          <textarea class="bncc-ai-ctx-input" id="bncc-ai-ctx" placeholder="Ex: 28 alunos, 6º ano, poucos computadores (1 por dupla), tema atual é frações, turma agitada mas engajada com jogos…" rows="2"></textarea>
-        </div>
-
-        <!-- Botões de ação -->
-        <div class="bncc-ai-actions">
-          <button class="bncc-ai-action-btn plan" onclick="callBnccAI('plano')">
-            <span>📋</span>
-            <div>
-              <div class="bncc-ai-action-name">Gerar plano de aula</div>
-              <div class="bncc-ai-action-desc">Sequência completa: objetivos, atividades, avaliação</div>
-            </div>
-          </button>
-          <button class="bncc-ai-action-btn rubrica" onclick="callBnccAI('rubrica')">
-            <span>📊</span>
-            <div>
-              <div class="bncc-ai-action-name">Gerar rubrica</div>
-              <div class="bncc-ai-action-desc">Critérios de avaliação alinhados à BNCC</div>
-            </div>
-          </button>
-          <button class="bncc-ai-action-btn sequencia" onclick="callBnccAI('sequencia')">
-            <span>🗓</span>
-            <div>
-              <div class="bncc-ai-action-name">Sequência didática</div>
-              <div class="bncc-ai-action-desc">4–6 aulas progressivas para esta habilidade</div>
-            </div>
-          </button>
-        </div>
-
-        <!-- Chat de dúvidas -->
-        <div class="bncc-ai-chat-wrap">
-          <div class="bncc-ai-chat-label">💬 Pergunte sobre esta habilidade</div>
-          <div class="bncc-ai-chat-row">
-            <input class="bncc-ai-chat-input" id="bncc-ai-chat-input" placeholder="Como avaliar alunos com dificuldade? Que adaptações posso fazer? …" onkeydown="if(event.key==='Enter')callBnccAI('chat')"/>
-            <button class="bncc-ai-chat-send" onclick="callBnccAI('chat')">→</button>
-          </div>
-        </div>
-
-        <!-- Output área -->
-        <div class="bncc-ai-output hidden" id="bncc-ai-output"></div>
-      </div>
-    </div>
-
   </div>
+
 </section>
 
 <div id="notif"></div>
