@@ -818,11 +818,13 @@ function renderAplicarCards(data, ctx) {
         </button>
       </div>
       <div class="bap-deep hidden" id="bap-deep-${i}">
-        <div class="bap-deep-hint">Adicione contexto da sua turma (opcional):</div>
-        <textarea class="bap-deep-textarea" id="bap-deep-ctx-${i}" rows="2" placeholder="Ex: 28 alunos, poucos computadores, 6º ano…"></textarea>
-        <button class="bap-deep-go" onclick="bnccAprofundarGo(${i},'${encodeURIComponent(deepQuery)}')">
-          ✦ Quero um plano completo!
-        </button>
+        <div class="bap-deep-form" id="bap-deep-form-${i}">
+          <div class="bap-deep-hint">Contexto da turma (opcional — melhora o resultado):</div>
+          <textarea class="bap-deep-textarea" id="bap-deep-ctx-${i}" rows="2" placeholder="Ex: 28 alunos, poucos computadores, 6º ano…"></textarea>
+          <button class="bap-deep-go" onclick="bnccAprofundarGo(${i})">
+            ✦ Quero um plano completo!
+          </button>
+        </div>
       </div>
     </div>`;
   }).join('');
@@ -844,21 +846,133 @@ function bnccAprofundar(idx) {
   if (btn) btn.textContent = isOpen ? 'Aprofundar →' : 'Fechar ↑';
 }
 
-function bnccAprofundarGo(idx, encodedQuery) {
-  const ctx  = document.getElementById(`bap-deep-ctx-${idx}`)?.value.trim() || '';
-  let q = decodeURIComponent(encodedQuery);
-  if (ctx) q += `. Turma: ${ctx}`;
-  // store BNCC context for home page highlight
-  const code = _bcsSelectedCode || '';
-  if (code) {
-    const skill = BNCC_SKILLS.find(s => s.code === code);
-    window._bnccContextBadge = { code, title: skill?.title || '' };
-  } else {
-    window._bnccContextBadge = null;
+async function bnccAprofundarGo(idx) {
+  const CAT_KEYS  = ['ferramenta', 'jogo', 'steam'];
+  const NAME_KEYS = ['ferramenta', 'jogo', 'atividade'];
+  const cat     = CAT_KEYS[idx];
+  const nameKey = NAME_KEYS[idx];
+  const d = _aplicarData?.[cat];
+  if (!d) return;
+
+  const ctx         = document.getElementById(`bap-deep-ctx-${idx}`)?.value.trim() || '';
+  const resourceName = d[nameKey] || '';
+  const bnccCode    = d.bncc || '';
+  const bnccSkill   = BNCC_SKILLS.find(s => s.code === bnccCode);
+  const deepEl      = document.getElementById(`bap-deep-${idx}`);
+  if (!deepEl) return;
+
+  // Replace form with loading
+  showLoading(deepEl, `Aprofundando com ${resourceName}`);
+
+  const altTools = typeof smartLocalSearch === 'function'
+    ? smartLocalSearch(`${d.titulo} ${d.descricao}`).slice(0, 10)
+        .filter(t => t.name.toLowerCase() !== resourceName.toLowerCase())
+        .slice(0, 8)
+        .map(t => ({ nome: t.name, cat: t.category }))
+    : [];
+
+  const bnccCtx = bnccCode
+    ? `Código BNCC obrigatório: ${bnccCode}${bnccSkill ? ' — ' + bnccSkill.title : ''}. A sequência didática DEVE cumprir esta habilidade de Computação.`
+    : '';
+
+  const queryCtx = `${d.titulo}: ${d.descricao}. ${nameKey === 'atividade' ? 'Atividade' : nameKey === 'jogo' ? 'Jogo' : 'Ferramenta'}: ${resourceName}. ${ctx ? 'Contexto da turma: ' + ctx : ''}`;
+
+  const sys = `Você é especialista em EdTech e BNCC Computação. Aprofunde esta ideia com guia completo.
+
+${bnccCtx}
+
+FERRAMENTAS ALTERNATIVAS DISPONÍVEIS (DIFERENTES de "${resourceName}"):
+${JSON.stringify(altTools)}
+
+REGRAS:
+- Responda APENAS com JSON puro, sem markdown, sem backticks
+- passos: EXATAMENTE 5 passos usando ${resourceName}, contextualizados ao ${bnccCode || 'tema'}
+- apps_alternativos: EXATAMENTE 3 ferramentas DIFERENTES de "${resourceName}" da lista
+- avaliacao: método + 3 critérios objetivos alinhados à habilidade BNCC
+- bncc_alinhamento: 1 frase explicando como esta ideia cumpre ${bnccCode || 'o currículo'}
+
+FORMATO EXATO:
+{"bncc_alinhamento":"frase explicando como a ideia cumpre ${bnccCode}","passos":[{"num":1,"titulo":"titulo curto","instrucao":"instrucao usando ${resourceName}"},{"num":2,"titulo":"...","instrucao":"..."},{"num":3,"titulo":"...","instrucao":"..."},{"num":4,"titulo":"...","instrucao":"..."},{"num":5,"titulo":"...","instrucao":"..."}],"atencao":"dificuldade principal em 1 frase","apps_alternativos":[{"nome":"nome exato","emoji":"emoji","diferencial":"diferencial em 1 frase"},{"nome":"...","emoji":"...","diferencial":"..."},{"nome":"...","emoji":"...","diferencial":"..."}],"avaliacao":{"metodo":"nome do método","criterios":["critério 1","critério 2","critério 3"]}}`;
+
+  try {
+    const resp = await fetch(DEEPSEEK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DEEPSEEK_KEY}` },
+      body: JSON.stringify({ model: 'deepseek-chat', messages: [{ role: 'system', content: sys }, { role: 'user', content: queryCtx }], max_tokens: 1600, temperature: 0.4 })
+    });
+    const raw = await resp.text();
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const content = JSON.parse(raw).choices?.[0]?.message?.content || '';
+    const match = content.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('Sem JSON na resposta');
+    renderBapDeepening(deepEl, JSON.parse(match[0]), { resourceName, bnccCode, bnccSkill, idx });
+  } catch(e) {
+    deepEl.innerHTML = `<div class="bap-error">❌ ${e.message}</div>`;
   }
-  if (typeof showPage === 'function') showPage('home');
-  if (typeof setNL === 'function') setNL(q);
-  setTimeout(() => { if (typeof doSearch === 'function') doSearch(); }, 120);
+}
+
+function renderBapDeepening(el, deep, { resourceName, bnccCode, bnccSkill, idx }) {
+  let h = '';
+
+  // BNCC banner
+  if (bnccCode) {
+    h += `<div class="bap-bncc-banner">
+      <span class="bap-bncc-banner-pill">🔵 BNCC</span>
+      <span class="bap-bncc-banner-code">${bnccCode}</span>
+      ${bnccSkill ? `<span class="bap-bncc-banner-title">${bnccSkill.title}</span>` : ''}
+    </div>`;
+  }
+  if (deep.bncc_alinhamento) {
+    h += `<div class="bap-align-note">✅ ${deep.bncc_alinhamento}</div>`;
+  }
+
+  // Steps
+  if (deep.passos?.length) {
+    h += `<div class="bap-deep-section"><div class="bap-deep-sec-lbl">📋 Sequência didática com ${resourceName}</div><div class="bap-steps">`;
+    deep.passos.forEach(p => {
+      h += `<div class="bap-step"><span class="bap-step-num">${p.num}</span><div><div class="bap-step-title">${p.titulo}</div><div class="bap-step-inst">${p.instrucao}</div></div></div>`;
+    });
+    h += `</div></div>`;
+  }
+
+  // Atenção
+  if (deep.atencao) {
+    h += `<div class="bap-atencao">⚠️ ${deep.atencao}</div>`;
+  }
+
+  // Alternativas
+  if (deep.apps_alternativos?.length) {
+    h += `<div class="bap-deep-section"><div class="bap-deep-sec-lbl">🔀 Ferramentas alternativas</div><div class="bap-alts">`;
+    deep.apps_alternativos.forEach(a => {
+      h += `<div class="bap-alt">${a.emoji||'🔧'} <strong>${a.nome}</strong> — ${a.diferencial}</div>`;
+    });
+    h += `</div></div>`;
+  }
+
+  // Avaliação
+  if (deep.avaliacao) {
+    h += `<div class="bap-deep-section"><div class="bap-deep-sec-lbl">📊 Avaliação — ${deep.avaliacao.metodo}</div><ul class="bap-criterios">`;
+    (deep.avaliacao.criterios || []).forEach(c => { h += `<li>${c}</li>`; });
+    h += `</ul></div>`;
+  }
+
+  // Back link
+  h += `<button class="bap-reset-btn" onclick="bnccAprofundarReset(${idx})">← Voltar à ideia</button>`;
+
+  el.innerHTML = h;
+}
+
+function bnccAprofundarReset(idx) {
+  const deepEl = document.getElementById(`bap-deep-${idx}`);
+  if (!deepEl) return;
+  deepEl.innerHTML = `
+    <div class="bap-deep-form" id="bap-deep-form-${idx}">
+      <div class="bap-deep-hint">Contexto da turma (opcional — melhora o resultado):</div>
+      <textarea class="bap-deep-textarea" id="bap-deep-ctx-${idx}" rows="2" placeholder="Ex: 28 alunos, poucos computadores, 6º ano…"></textarea>
+      <button class="bap-deep-go" onclick="bnccAprofundarGo(${idx})">
+        ✦ Quero um plano completo!
+      </button>
+    </div>`;
 }
 
 // ── NL SEARCH ─────────────────────────────────────────────
