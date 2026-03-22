@@ -296,13 +296,21 @@
     </p>
   </div>
 
-  <!-- ENTRY: Two paths -->
-  <div class="bncc-entry-wrap">
+  <!-- ENTRY: Search box -->
+  <div class="bncc-search-box">
+    <div class="search-mode">
+      <button class="smode-btn active" id="bncc-mode-code" onclick="setBnccMode('code')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        Já tenho um código BNCC
+      </button>
+      <button class="smode-btn" id="bncc-mode-idea" onclick="setBnccMode('idea')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        Busca guiada
+      </button>
+    </div>
 
-    <div class="bncc-entry-card bncc-entry-code">
-      <div class="bncc-entry-icon">🔍</div>
-      <div class="bncc-entry-label">Já tenho o código BNCC</div>
-      <div class="bncc-entry-sub">Selecione o código e descubra ferramentas e atividades prontas para a aula</div>
+    <!-- Panel: código BNCC -->
+    <div id="bncc-panel-code">
       <div class="bcs" id="bcs-code">
         <button class="bcs-btn" onclick="bcsTog('bcs-code')">
           <span class="bcs-val" id="bcs-code-val">Selecione o código BNCC de Computação…</span>
@@ -315,17 +323,14 @@
           <div class="bcs-opts" id="bcs-code-opts"></div>
         </div>
       </div>
+      <div class="bncc-code-hint">💡 Selecione qualquer código — ferramentas, jogos e atividades aparecem na hora</div>
     </div>
 
-    <div class="bncc-entry-or"><span>ou</span></div>
-
-    <div class="bncc-entry-card bncc-entry-idea">
-      <div class="bncc-entry-icon">💡</div>
-      <div class="bncc-entry-label">Tenho uma ideia de aula</div>
-      <div class="bncc-entry-sub">Descreva o que quer ensinar — mapeamos o código BNCC certo e mostramos recursos</div>
-      <div class="bncc-nl-row">
-        <input class="bncc-nl-input" id="bncc-nl-input" placeholder="Ex: quero trabalhar algoritmos com 3º ano usando jogos…" onkeydown="if(event.key==='Enter')bnccNLSearch()"/>
-        <button class="bncc-nl-btn" onclick="bnccNLSearch()">Buscar →</button>
+    <!-- Panel: busca guiada -->
+    <div id="bncc-panel-idea" class="hidden">
+      <div class="nl-input-wrap">
+        <textarea id="bncc-nl-input" rows="3" placeholder="Ex: quero trabalhar algoritmos com o 3º ano usando jogos… ou: segurança digital para o 8º ano…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();bnccNLSearch()}"></textarea>
+        <div class="nl-hint">💡 Descreva livremente — série, tema, método. A IA mapeia o código BNCC certo.</div>
       </div>
       <div class="bncc-nl-examples">
         <span onclick="bnccNLFill('pensamento computacional para Educação Infantil')">🎈 Ed. Infantil</span>
@@ -333,9 +338,12 @@
         <span onclick="bnccNLFill('segurança digital e ética para 8º ano')">🔒 8º ano · Segurança</span>
         <span onclick="bnccNLFill('inteligência artificial para Ensino Médio')">🤖 EM · IA</span>
       </div>
+      <button class="sbtn" onclick="bnccNLSearch()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <span>Buscar habilidades BNCC</span>
+      </button>
       <div id="bncc-nl-result" class="bncc-nl-result hidden"></div>
     </div>
-
   </div>
 
   <!-- SKILL RESULT -->

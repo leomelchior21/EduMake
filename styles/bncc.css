@@ -271,7 +271,7 @@
 
 /* Drop panel — glassmorphism */
 .bcs-drop{
-  position:absolute;top:calc(100% + 7px);left:0;right:0;z-index:400;
+  position:absolute;top:calc(100% + 7px);left:0;right:0;z-index:9999;
   background:rgba(10,10,24,.88);
   backdrop-filter:blur(32px) saturate(1.8);-webkit-backdrop-filter:blur(32px) saturate(1.8);
   border:1px solid rgba(255,255,255,.15);
@@ -369,7 +369,7 @@
 
 /* ── Skill grid (overridden above with 2-col fixed) ── */
 .bsg-card{background:var(--bncc-surf);border:1px solid var(--bncc-border);border-radius:16px;padding:18px;transition:all .22s;position:relative;cursor:pointer}
-.bsg-card:hover{border-color:var(--bncc-border2);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,212,180,.1)}
+.bsg-card:hover{border-color:var(--bncc-border2);box-shadow:0 6px 20px rgba(0,212,180,.1)}
 .bsg-card-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
 .bsg-code{padding:3px 9px;border-radius:6px;background:rgba(0,212,180,.12);border:1px solid rgba(0,212,180,.25);font-size:.7rem;font-weight:700;color:var(--bncc-teal);font-family:var(--fb);letter-spacing:.04em}
 .bsg-eixo{padding:3px 8px;border-radius:6px;font-size:.66rem;font-weight:700;letter-spacing:.05em}
@@ -390,26 +390,15 @@
 .bsg-no-results{text-align:center;padding:40px 24px;color:var(--dim);font-size:.9rem;grid-column:1/-1;line-height:1.7}
 .bncc-grid-count{max-width:980px;margin:0 auto 12px;padding:0 24px;font-size:.72rem;color:var(--dim);letter-spacing:.04em}
 
-/* ── ENTRY: TWO PATHS ──────────────────────────────────── */
-.bncc-entry-wrap{max-width:960px;margin:0 auto 56px;padding:0 24px;display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:start}
-.bncc-entry-card{border-radius:20px;padding:28px 26px;transition:transform .25s,border-color .25s}
-.bncc-entry-card:hover{transform:translateY(-3px)}
-.bncc-entry-code{background:rgba(124,111,247,.06);border:1px solid rgba(124,111,247,.22)}
-.bncc-entry-code:hover{border-color:rgba(124,111,247,.45)}
-.bncc-entry-idea{background:rgba(0,212,180,.05);border:1px solid rgba(0,212,180,.2)}
-.bncc-entry-idea:hover{border-color:rgba(0,212,180,.42)}
-.bncc-entry-icon{font-size:1.7rem;margin-bottom:12px}
-.bncc-entry-label{font-family:var(--fd);font-size:1.02rem;font-weight:800;color:var(--text);margin-bottom:7px;letter-spacing:-.02em}
-.bncc-entry-sub{font-size:.78rem;color:var(--muted);line-height:1.55;font-weight:300;margin-bottom:18px}
-.bncc-entry-or{display:flex;align-items:center;justify-content:center;padding:0 20px;padding-top:52px}
-.bncc-entry-or span{font-size:.7rem;color:var(--dim);background:var(--bg);padding:6px 12px;border-radius:100px;border:1px solid var(--border);white-space:nowrap}
-.bncc-code-row{display:flex;gap:8px;margin-bottom:14px}
-.bncc-entry-code .bncc-code-input{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(124,111,247,.25);border-radius:10px;padding:10px 14px;color:var(--text);font-family:var(--fb);font-size:.88rem;outline:none;transition:border-color .2s}
-.bncc-entry-code .bncc-code-input:focus{border-color:rgba(124,111,247,.55)}
-.bncc-entry-code .bncc-go-btn{background:rgba(124,111,247,.85);color:#fff;padding:10px 18px;font-size:.84rem}
-.bncc-entry-code .bncc-go-btn:hover{background:rgba(124,111,247,1);box-shadow:0 6px 20px rgba(124,111,247,.35)}
-.bncc-entry-idea .bncc-nl-row{max-width:100%;margin:0 0 10px;background:rgba(255,255,255,.04);border:1px solid rgba(0,212,180,.22)}
-.bncc-entry-idea .bncc-nl-examples{justify-content:flex-start;margin-top:10px}
+/* ── ENTRY: SEARCH BOX ──────────────────────────────────── */
+.bncc-search-box{width:100%;max-width:700px;margin:0 auto 56px;background:rgba(255,255,255,.038);border:1px solid var(--border2);border-radius:22px;padding:22px 24px 24px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:border-color .25s,box-shadow .25s}
+.bncc-search-box:focus-within{border-color:rgba(0,212,180,.35);box-shadow:0 0 0 4px rgba(0,212,180,.07)}
+/* teal active tab override for bncc */
+.bncc-search-box .smode-btn.active{background:rgba(0,212,180,.12);border-color:rgba(0,212,180,.38);color:#7de8d8}
+.bncc-code-hint{font-size:.72rem;color:var(--dim);margin-top:10px;text-align:center}
+#bncc-panel-idea .bncc-nl-examples{margin-top:10px;margin-bottom:0}
+/* reuse sbtn inside bncc panel with teal gradient */
+.bncc-search-box .sbtn{background:linear-gradient(135deg,var(--bncc-teal),#1a9e8a)}
 
 /* ── 3-COLUMN RESOURCES ──────────────────────────────── */
 .bncc-3col{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:24px 0 28px}
@@ -484,9 +473,7 @@
   .bncc-gen-ideas-wrap{padding:18px 16px}
 }
 @media(max-width:780px){
-  .bncc-entry-wrap{grid-template-columns:1fr;gap:16px;padding:0 16px}
-  .bncc-entry-or{padding:0}
-  .bncc-entry-or span{display:none}
+  .bncc-search-box{margin:0 16px 40px;border-radius:16px;padding:16px 14px 18px}
   .bncc-3col{grid-template-columns:1fr}
   #bncc-skill-grid{grid-template-columns:1fr;padding:0 14px}
   .bsg-card.expanded{grid-column:span 1}

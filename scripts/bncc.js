@@ -661,6 +661,16 @@ function getBnccResFallback(code, skill) {
   return {tools, games};
 }
 
+// ── MODE TOGGLE ────────────────────────────────────────────
+function setBnccMode(mode) {
+  const panels = { code: 'bncc-panel-code', idea: 'bncc-panel-idea' };
+  const btns   = { code: 'bncc-mode-code',  idea: 'bncc-mode-idea'  };
+  Object.keys(panels).forEach(k => {
+    document.getElementById(panels[k])?.classList.toggle('hidden', k !== mode);
+    document.getElementById(btns[k])?.classList.toggle('active', k === mode);
+  });
+}
+
 // ── NL SEARCH ─────────────────────────────────────────────
 function bnccNLFill(text) {
   const inp = document.getElementById('bncc-nl-input');
