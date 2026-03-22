@@ -367,7 +367,7 @@
 /* ── EXPANDED STATE ─────────────────────────────────────── */
 .bsg-card.expanded{grid-column:span 2;border-color:var(--bncc-border2);background:rgba(0,212,180,.05);box-shadow:0 8px 32px rgba(0,212,180,.1)}
 .bsg-card.expanded .bsg-title{font-size:1rem;-webkit-line-clamp:unset}
-.bsg-inline-panel{display:none;margin-top:18px;padding-top:18px;border-top:1px solid var(--bncc-border)}
+.bsg-inline-panel{display:none;margin-top:18px;padding-top:18px;border-top:1px solid var(--bncc-border);overflow:hidden}
 .bsg-card.expanded .bsg-inline-panel{display:block}
 
 /* Description block */
@@ -383,8 +383,8 @@
 .bsg-res-hd.tool{color:#b0a8ff}
 .bsg-res-hd.game{color:var(--bncc-teal)}
 .bsg-res-hd.steam{color:#ff9a5c}
-.bsg-res-chips{display:flex;flex-wrap:wrap;gap:7px}
-.bsg-rc{display:inline-flex;align-items:center;padding:5px 13px;border-radius:100px;font-size:.76rem;font-weight:600;text-decoration:none;transition:all .18s;cursor:pointer}
+.bsg-res-chips{display:flex;flex-wrap:wrap;gap:7px;overflow:hidden}
+.bsg-rc{display:inline-flex;align-items:center;padding:5px 13px;border-radius:100px;font-size:.76rem;font-weight:600;text-decoration:none;transition:all .18s;cursor:pointer;white-space:nowrap;max-width:220px;overflow:hidden;text-overflow:ellipsis}
 .bsg-rc.tool{background:rgba(124,111,247,.1);border:1px solid rgba(124,111,247,.25);color:#b0a8ff}
 .bsg-rc.tool:hover{background:rgba(124,111,247,.22);border-color:rgba(124,111,247,.5)}
 .bsg-rc.game{background:rgba(0,212,180,.1);border:1px solid rgba(0,212,180,.28);color:var(--bncc-teal)}
