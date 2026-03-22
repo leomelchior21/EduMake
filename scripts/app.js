@@ -211,12 +211,14 @@ async function deepenIdea(ideaId) {
 }
 
 async function redeepenWithTool(newToolName, newToolEmoji) {
-  if (!currentDeepeningIdea || !currentResultData) return;
+  if (!currentDeepeningIdea) return;
   const updated = { ...currentDeepeningIdea, tool: newToolName, tool_emoji: newToolEmoji || '🔧' };
-  const idx = currentResultData.ideas.findIndex(i=>i.id===updated.id);
-  if (idx >= 0) currentResultData.ideas[idx] = updated;
+  if (currentResultData) {
+    const idx = currentResultData.ideas.findIndex(i=>i.id===updated.id);
+    if (idx >= 0) currentResultData.ideas[idx] = updated;
+  }
   currentDeepeningIdea = updated;
-  await _runDeepening(updated);
+  await _runDeepening(updated, window._currentDeepOpts || {});
 }
 
 async function swapToolFromSearch() {
@@ -235,11 +237,12 @@ async function swapToolFromSearch() {
     </div>`).join('');
 }
 
-async function _runDeepening(idea) {
-  const rcont = document.getElementById('rcont');
+async function _runDeepening(idea, opts = {}) {
+  window._currentDeepOpts = opts;
+  const rcont = opts.targetEl || document.getElementById('rcont');
   showLoading(rcont, `Aprofundando com ${esc(idea.tool)}`);
 
-  const queryCtx = `${idea.title}: ${idea.description}. Ferramenta principal: ${idea.tool}. Contexto: ${currentResultData.query_understood||''} — ${currentResultData.nivel||''}`;
+  const queryCtx = `${idea.title}: ${idea.description}. Ferramenta principal: ${idea.tool}. Contexto: ${opts.queryCtx || (currentResultData?.query_understood||'')+' — '+(currentResultData?.nivel||'')}${opts.bnccCode ? '. Código BNCC obrigatório: '+opts.bnccCode : ''}`;
   const tools = smartLocalSearch(currentResultData.query_understood||'');
   const toolName = idea.tool;
   const toolsSlim = JSON.stringify(tools.slice(0,10).map(t=>({nome:t.name,cat:t.category})));
@@ -274,21 +277,31 @@ FORMATO EXATO (copie esta estrutura exatamente):
     const content = parsed.choices?.[0]?.message?.content || '';
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('Sem JSON na resposta');
-    renderDeepening(idea, JSON.parse(jsonMatch[0]));
+    renderDeepening(idea, JSON.parse(jsonMatch[0]), opts);
   } catch(e) {
-    rcont.innerHTML=`<div class="err-card"><div class="err-ico">⚠️</div><h3>Erro ao aprofundar</h3><p>${e.message}</p><div style="text-align:center;margin-top:16px"><button class="mclose" style="width:auto;padding:9px 20px" onclick="renderResult(currentResultData)">← Voltar</button></div></div>`;
+    const _backFn = opts.backFn || 'renderResult(currentResultData)';
+    rcont.innerHTML=`<div class="err-card"><div class="err-ico">⚠️</div><h3>Erro ao aprofundar</h3><p>${e.message}</p><div style="text-align:center;margin-top:16px"><button class="mclose" style="width:auto;padding:9px 20px" onclick="${_backFn}">← Voltar</button></div></div>`;
   }
 }
 
 // ── RENDER DEEPENING ────────────────────────────────────────
-function renderDeepening(idea, deep) {
+function renderDeepening(idea, deep, opts = {}) {
   currentDeepeningIdea = idea;
   currentFicha = deep.ficha || null;
-  const toolData = TOOLS.find(t=>t.tool.toLowerCase()===idea.tool.toLowerCase());
+  const targetEl  = opts.targetEl  || document.getElementById('rcont');
+  const backFn    = opts.backFn    || 'renderResult(currentResultData)';
+  const backLabel = opts.backLabel || '← Voltar às 5 ideias';
+  const toolData  = TOOLS.find(t=>t.tool.toLowerCase()===idea.tool.toLowerCase());
   let h='<div class="ai-result">';
 
+  // ── BNCC BANNER (only when coming from BNCC page)
+  if (opts.bnccCode) {
+    const _bnccSkill = typeof BNCC_SKILLS !== 'undefined' ? BNCC_SKILLS.find(s=>s.code===opts.bnccCode) : null;
+    h+=`<div class="bncc-context-banner" style="margin-bottom:16px"><span class="bncc-ctx-pill">🔵 BNCC</span><span class="bncc-ctx-code">${opts.bnccCode}</span>${_bnccSkill?`<span class="bncc-ctx-title">— ${_bnccSkill.title}</span>`:''}</div>`;
+  }
+
   // ── BACK + PDF
-  h+=`<div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap"><div class="deep-back" onclick="renderResult(currentResultData)">← Voltar às 5 ideias</div><button class="deep-print-btn" onclick="exportToPDF()">⬇ Exportar PDF</button></div>`;
+  h+=`<div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap"><div class="deep-back" onclick="${backFn}">${backLabel}</div><button class="deep-print-btn" onclick="exportToPDF()">⬇ Exportar PDF</button></div>`;
 
   // ── HERO
   h+=`<div class="deep-hero">
@@ -405,10 +418,24 @@ function renderDeepening(idea, deep) {
     </div>`;
   }
 
+  // ── FINALIZE (only on BNCC page)
+  if (opts.showFinalizeArea) {
+    h+=`<div class="deep-section deep-finalize">
+      <h4>✏️ Finalize a sua aula</h4>
+      <p style="font-size:.76rem;color:var(--dim);margin-bottom:10px">Adicione objetivos específicos, materiais disponíveis, tempo ou ajustes para a sua turma:</p>
+      <textarea id="deep-teacher-notes" class="deep-teacher-notes" rows="4" placeholder="Ex: turma de 28 alunos, 2 aulas de 50 min, 1 computador por dupla, foco em protagonismo…"></textarea>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <button class="deep-print-btn" onclick="exportToPDF()" style="flex:1">⬇ Exportar plano completo em PDF</button>
+      </div>
+    </div>`;
+  }
+
   h+='</div>';
-  document.getElementById('rcont').innerHTML=h;
-  document.getElementById('rov-title').textContent='✦ Aprofundamento';
-  document.getElementById('rov-sub').textContent=`${idea.tool} · ${idea.title}`;
+  targetEl.innerHTML=h;
+  if (!opts.targetEl) {
+    document.getElementById('rov-title').textContent='✦ Aprofundamento';
+    document.getElementById('rov-sub').textContent=`${idea.tool} · ${idea.title}`;
+  }
 }
 
 // ── FICHA INVESTIGATIVA IMPRESSA ──────────────────────────

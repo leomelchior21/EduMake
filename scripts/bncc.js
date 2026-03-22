@@ -812,167 +812,69 @@ function renderAplicarCards(data, ctx) {
         <span class="bap-resource-name">${name}</span>
       </div>
       <div class="bap-como"><strong>Como usar:</strong> ${d.como_usar}</div>
-      <div class="bap-actions">
-        <button class="bap-aprofundar-btn" onclick="bnccAprofundar(${i})">
-          Aprofundar →
-        </button>
-      </div>
-      <div class="bap-deep hidden" id="bap-deep-${i}">
-        <div class="bap-deep-form" id="bap-deep-form-${i}">
-          <div class="bap-deep-hint">Contexto da turma (opcional — melhora o resultado):</div>
-          <textarea class="bap-deep-textarea" id="bap-deep-ctx-${i}" rows="2" placeholder="Ex: 28 alunos, poucos computadores, 6º ano…"></textarea>
-          <button class="bap-deep-go" onclick="bnccAprofundarGo(${i})">
-            ✦ Quero um plano completo!
-          </button>
-        </div>
-      </div>
+      <button class="bap-choose-btn ${cat.cls}-choose" onclick="event.stopPropagation();bnccChooseIdea(${i})">
+        Escolher esta ideia →
+      </button>
     </div>`;
   }).join('');
 
   area.innerHTML = `
     <div class="bap-header">
       <div class="bap-header-title">✦ 3 ideias prontas para aplicar</div>
-      <div class="bap-header-sub">Escolha uma — ou explore as três com sua turma</div>
+      <div class="bap-header-sub">Escolha uma para aprofundar — ou peça mais 3 ideias</div>
+      <button class="bap-mais-btn" onclick="bnccAplicar()">↺ Mais 3 ideias</button>
     </div>
-    <div class="bap-grid">${cards}</div>`;
+    <div class="bap-grid" id="bap-ideas-grid">${cards}</div>
+    <div class="bap-deep-view hidden" id="bap-deep-view"></div>`;
 }
 
-function bnccAprofundar(idx) {
-  const deep = document.getElementById(`bap-deep-${idx}`);
-  const btn  = document.querySelector(`#bap-card-${idx} .bap-aprofundar-btn`);
-  if (!deep) return;
-  const isOpen = !deep.classList.contains('hidden');
-  deep.classList.toggle('hidden', isOpen);
-  if (btn) btn.textContent = isOpen ? 'Aprofundar →' : 'Fechar ↑';
-}
-
-async function bnccAprofundarGo(idx) {
+async function bnccChooseIdea(idx) {
   const CAT_KEYS  = ['ferramenta', 'jogo', 'steam'];
   const NAME_KEYS = ['ferramenta', 'jogo', 'atividade'];
+  const EMOJIS    = ['🛠️', '🎮', '⚗️'];
   const cat     = CAT_KEYS[idx];
   const nameKey = NAME_KEYS[idx];
   const d = _aplicarData?.[cat];
   if (!d) return;
 
-  const ctx         = document.getElementById(`bap-deep-ctx-${idx}`)?.value.trim() || '';
-  const resourceName = d[nameKey] || '';
-  const bnccCode    = d.bncc || '';
-  const bnccSkill   = BNCC_SKILLS.find(s => s.code === bnccCode);
-  const deepEl      = document.getElementById(`bap-deep-${idx}`);
-  if (!deepEl) return;
+  const grid    = document.getElementById('bap-ideas-grid');
+  const deepView = document.getElementById('bap-deep-view');
+  if (!grid || !deepView) return;
 
-  // Replace form with loading
-  showLoading(deepEl, `Aprofundando com ${resourceName}`);
+  grid.classList.add('hidden');
+  deepView.classList.remove('hidden');
 
-  const altTools = typeof smartLocalSearch === 'function'
-    ? smartLocalSearch(`${d.titulo} ${d.descricao}`).slice(0, 10)
-        .filter(t => t.name.toLowerCase() !== resourceName.toLowerCase())
-        .slice(0, 8)
-        .map(t => ({ nome: t.name, cat: t.category }))
-    : [];
+  const idea = {
+    id: idx + 1,
+    title: d.titulo,
+    description: d.descricao,
+    tool: d[nameKey] || '',
+    tool_emoji: EMOJIS[idx],
+    bncc_codes: d.bncc ? [d.bncc] : []
+  };
 
-  const bnccCtx = bnccCode
-    ? `Código BNCC obrigatório: ${bnccCode}${bnccSkill ? ' — ' + bnccSkill.title : ''}. A sequência didática DEVE cumprir esta habilidade de Computação.`
-    : '';
+  const disc  = document.getElementById('bncc-g-disc')?.value.trim()  || '';
+  const serie = document.getElementById('bncc-g-serie')?.value.trim() || '';
+  const tema  = document.getElementById('bncc-g-tema')?.value.trim()  || '';
+  const queryCtx = [disc, tema, serie ? `para ${serie}` : ''].filter(Boolean).join(', ');
 
-  const queryCtx = `${d.titulo}: ${d.descricao}. ${nameKey === 'atividade' ? 'Atividade' : nameKey === 'jogo' ? 'Jogo' : 'Ferramenta'}: ${resourceName}. ${ctx ? 'Contexto da turma: ' + ctx : ''}`;
+  const opts = {
+    targetEl:        deepView,
+    backFn:          'bnccShowGrid()',
+    backLabel:       '← Voltar às 3 ideias',
+    bnccCode:        d.bncc || '',
+    queryCtx:        queryCtx,
+    showFinalizeArea: true
+  };
 
-  const sys = `Você é especialista em EdTech e BNCC Computação. Aprofunde esta ideia com guia completo.
-
-${bnccCtx}
-
-FERRAMENTAS ALTERNATIVAS DISPONÍVEIS (DIFERENTES de "${resourceName}"):
-${JSON.stringify(altTools)}
-
-REGRAS:
-- Responda APENAS com JSON puro, sem markdown, sem backticks
-- passos: EXATAMENTE 5 passos usando ${resourceName}, contextualizados ao ${bnccCode || 'tema'}
-- apps_alternativos: EXATAMENTE 3 ferramentas DIFERENTES de "${resourceName}" da lista
-- avaliacao: método + 3 critérios objetivos alinhados à habilidade BNCC
-- bncc_alinhamento: 1 frase explicando como esta ideia cumpre ${bnccCode || 'o currículo'}
-
-FORMATO EXATO:
-{"bncc_alinhamento":"frase explicando como a ideia cumpre ${bnccCode}","passos":[{"num":1,"titulo":"titulo curto","instrucao":"instrucao usando ${resourceName}"},{"num":2,"titulo":"...","instrucao":"..."},{"num":3,"titulo":"...","instrucao":"..."},{"num":4,"titulo":"...","instrucao":"..."},{"num":5,"titulo":"...","instrucao":"..."}],"atencao":"dificuldade principal em 1 frase","apps_alternativos":[{"nome":"nome exato","emoji":"emoji","diferencial":"diferencial em 1 frase"},{"nome":"...","emoji":"...","diferencial":"..."},{"nome":"...","emoji":"...","diferencial":"..."}],"avaliacao":{"metodo":"nome do método","criterios":["critério 1","critério 2","critério 3"]}}`;
-
-  try {
-    const resp = await fetch(DEEPSEEK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DEEPSEEK_KEY}` },
-      body: JSON.stringify({ model: 'deepseek-chat', messages: [{ role: 'system', content: sys }, { role: 'user', content: queryCtx }], max_tokens: 1600, temperature: 0.4 })
-    });
-    const raw = await resp.text();
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const content = JSON.parse(raw).choices?.[0]?.message?.content || '';
-    const match = content.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error('Sem JSON na resposta');
-    renderBapDeepening(deepEl, JSON.parse(match[0]), { resourceName, bnccCode, bnccSkill, idx });
-  } catch(e) {
-    deepEl.innerHTML = `<div class="bap-error">❌ ${e.message}</div>`;
-  }
+  await _runDeepening(idea, opts);
 }
 
-function renderBapDeepening(el, deep, { resourceName, bnccCode, bnccSkill, idx }) {
-  let h = '';
-
-  // BNCC banner
-  if (bnccCode) {
-    h += `<div class="bap-bncc-banner">
-      <span class="bap-bncc-banner-pill">🔵 BNCC</span>
-      <span class="bap-bncc-banner-code">${bnccCode}</span>
-      ${bnccSkill ? `<span class="bap-bncc-banner-title">${bnccSkill.title}</span>` : ''}
-    </div>`;
-  }
-  if (deep.bncc_alinhamento) {
-    h += `<div class="bap-align-note">✅ ${deep.bncc_alinhamento}</div>`;
-  }
-
-  // Steps
-  if (deep.passos?.length) {
-    h += `<div class="bap-deep-section"><div class="bap-deep-sec-lbl">📋 Sequência didática com ${resourceName}</div><div class="bap-steps">`;
-    deep.passos.forEach(p => {
-      h += `<div class="bap-step"><span class="bap-step-num">${p.num}</span><div><div class="bap-step-title">${p.titulo}</div><div class="bap-step-inst">${p.instrucao}</div></div></div>`;
-    });
-    h += `</div></div>`;
-  }
-
-  // Atenção
-  if (deep.atencao) {
-    h += `<div class="bap-atencao">⚠️ ${deep.atencao}</div>`;
-  }
-
-  // Alternativas
-  if (deep.apps_alternativos?.length) {
-    h += `<div class="bap-deep-section"><div class="bap-deep-sec-lbl">🔀 Ferramentas alternativas</div><div class="bap-alts">`;
-    deep.apps_alternativos.forEach(a => {
-      h += `<div class="bap-alt">${a.emoji||'🔧'} <strong>${a.nome}</strong> — ${a.diferencial}</div>`;
-    });
-    h += `</div></div>`;
-  }
-
-  // Avaliação
-  if (deep.avaliacao) {
-    h += `<div class="bap-deep-section"><div class="bap-deep-sec-lbl">📊 Avaliação — ${deep.avaliacao.metodo}</div><ul class="bap-criterios">`;
-    (deep.avaliacao.criterios || []).forEach(c => { h += `<li>${c}</li>`; });
-    h += `</ul></div>`;
-  }
-
-  // Back link
-  h += `<button class="bap-reset-btn" onclick="bnccAprofundarReset(${idx})">← Voltar à ideia</button>`;
-
-  el.innerHTML = h;
-}
-
-function bnccAprofundarReset(idx) {
-  const deepEl = document.getElementById(`bap-deep-${idx}`);
-  if (!deepEl) return;
-  deepEl.innerHTML = `
-    <div class="bap-deep-form" id="bap-deep-form-${idx}">
-      <div class="bap-deep-hint">Contexto da turma (opcional — melhora o resultado):</div>
-      <textarea class="bap-deep-textarea" id="bap-deep-ctx-${idx}" rows="2" placeholder="Ex: 28 alunos, poucos computadores, 6º ano…"></textarea>
-      <button class="bap-deep-go" onclick="bnccAprofundarGo(${idx})">
-        ✦ Quero um plano completo!
-      </button>
-    </div>`;
+function bnccShowGrid() {
+  const grid     = document.getElementById('bap-ideas-grid');
+  const deepView = document.getElementById('bap-deep-view');
+  if (grid)     grid.classList.remove('hidden');
+  if (deepView) deepView.classList.add('hidden');
 }
 
 // ── NL SEARCH ─────────────────────────────────────────────
