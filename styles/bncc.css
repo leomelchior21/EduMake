@@ -392,12 +392,19 @@
 
 /* ── ENTRY: SEARCH BOX ──────────────────────────────────── */
 .bncc-search-box{width:100%;max-width:700px;margin:0 auto 56px;background:rgba(255,255,255,.038);border:1px solid var(--border2);border-radius:22px;padding:22px 24px 24px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:border-color .25s,box-shadow .25s}
-.bncc-search-box:focus-within{border-color:rgba(0,212,180,.35);box-shadow:0 0 0 4px rgba(0,212,180,.07)}
-/* teal active tab override for bncc */
-.bncc-search-box .smode-btn.active{background:rgba(0,212,180,.12);border-color:rgba(0,212,180,.38);color:#7de8d8}
-.bncc-code-hint{font-size:.72rem;color:var(--dim);margin-top:10px;text-align:center}
-#bncc-panel-idea .bncc-nl-examples{margin-top:10px;margin-bottom:0}
-/* reuse sbtn inside bncc panel with teal gradient */
+.bncc-search-box:focus-within{border-color:rgba(0,212,180,.28);box-shadow:0 0 0 4px rgba(0,212,180,.06)}
+.bncc-sgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+.bncc-sf{display:flex;flex-direction:column;gap:4px}
+.bncc-sf label{font-size:.68rem;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.07em}
+.bncc-sf input{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:9px 11px;color:var(--text);font-family:var(--fb);font-size:.86rem;outline:none;transition:border-color .2s}
+.bncc-sf input:focus{border-color:rgba(0,212,180,.45)}
+.bncc-sf input::placeholder{color:var(--dim)}
+/* Code field — teal highlight */
+.bncc-sf-code label{color:var(--bncc-teal);opacity:.85}
+.bncc-sf-code .bcs-btn{background:rgba(0,212,180,.06);border-color:rgba(0,212,180,.28)}
+.bncc-sf-code .bcs.open .bcs-btn,.bncc-sf-code .bcs.has-value .bcs-btn{border-color:rgba(0,212,180,.55);box-shadow:0 0 0 3px rgba(0,212,180,.09)}
+.bcs-opt-none{color:var(--dim);font-style:italic;font-size:.82rem}
+.bncc-grid-hint{font-size:.72rem;color:var(--dim);margin:4px 0 0;text-align:center}
 .bncc-search-box .sbtn{background:linear-gradient(135deg,var(--bncc-teal),#1a9e8a)}
 
 /* ── 3-COLUMN RESOURCES ──────────────────────────────── */
@@ -474,6 +481,7 @@
 }
 @media(max-width:780px){
   .bncc-search-box{margin:0 16px 40px;border-radius:16px;padding:16px 14px 18px}
+  .bncc-sgrid{grid-template-columns:1fr}
   .bncc-3col{grid-template-columns:1fr}
   #bncc-skill-grid{grid-template-columns:1fr;padding:0 14px}
   .bsg-card.expanded{grid-column:span 1}

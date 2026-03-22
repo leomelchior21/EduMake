@@ -39,7 +39,10 @@ function bcsSearch(optsId, q) {
   });
 }
 
+let _bcsSelectedCode = '';
+
 function bcsPickCode(code) {
+  _bcsSelectedCode = code;
   const skill = BNCC_SKILLS.find(s => s.code === code);
   const valEl = document.getElementById('bcs-code-val');
   if (valEl && skill) {
@@ -49,7 +52,15 @@ function bcsPickCode(code) {
   document.getElementById('bcs-code')?.classList.add('has-value');
   document.querySelectorAll('#bcs-code-opts .bcs-opt').forEach(o => o.classList.toggle('selected', o.dataset.code === code));
   bcsClose();
-  bnccQuick(code);
+}
+
+function bcsClearCode() {
+  _bcsSelectedCode = '';
+  const valEl = document.getElementById('bcs-code-val');
+  if (valEl) valEl.textContent = 'Não tenho código ainda';
+  document.getElementById('bcs-code')?.classList.remove('has-value');
+  document.querySelectorAll('#bcs-code-opts .bcs-opt').forEach(o => o.classList.remove('selected'));
+  bcsClose();
 }
 
 function bcsPickFilter(bcsId, value, label, hiddenSelectId) {
@@ -76,7 +87,7 @@ function initBncc() {
     const GRADE_ORDER = ['Educação Infantil','1º Ano','2º Ano','3º Ano','4º Ano','5º Ano','6º Ano','7º Ano','8º Ano','9º Ano','Ensino Médio'];
     const groups = {};
     BNCC_SKILLS.forEach(s => { if (!groups[s.grade]) groups[s.grade] = []; groups[s.grade].push(s); });
-    let html = '';
+    let html = `<div class="bcs-opt bcs-opt-none selected" onclick="event.stopPropagation();bcsClearCode()">Não tenho código ainda</div>`;
     GRADE_ORDER.forEach(grade => {
       if (!groups[grade]) return;
       html += `<div class="bcs-group">${grade}</div>`;
@@ -661,14 +672,24 @@ function getBnccResFallback(code, skill) {
   return {tools, games};
 }
 
-// ── MODE TOGGLE ────────────────────────────────────────────
-function setBnccMode(mode) {
-  const panels = { code: 'bncc-panel-code', idea: 'bncc-panel-idea' };
-  const btns   = { code: 'bncc-mode-code',  idea: 'bncc-mode-idea'  };
-  Object.keys(panels).forEach(k => {
-    document.getElementById(panels[k])?.classList.toggle('hidden', k !== mode);
-    document.getElementById(btns[k])?.classList.toggle('active', k === mode);
-  });
+// ── UNIFIED GUIADA SEARCH ──────────────────────────────────
+async function bnccGuiadaSearch() {
+  if (_bcsSelectedCode) {
+    await bnccQuick(_bcsSelectedCode);
+    return;
+  }
+  const disc  = document.getElementById('bncc-g-disc')?.value.trim()  || '';
+  const serie = document.getElementById('bncc-g-serie')?.value.trim() || '';
+  const tema  = document.getElementById('bncc-g-tema')?.value.trim()  || '';
+  if (!disc && !serie && !tema) return;
+  const parts = [];
+  if (disc)  parts.push(disc);
+  if (tema)  parts.push(tema);
+  if (serie) parts.push(`para ${serie}`);
+  const q = parts.join(', ');
+  const inp = document.getElementById('bncc-nl-input');
+  if (inp) inp.value = q;
+  await bnccNLSearch();
 }
 
 // ── NL SEARCH ─────────────────────────────────────────────
