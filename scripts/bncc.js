@@ -234,6 +234,7 @@ function buildSkillCard(s) {
       <span class="bsg-code">${s.code}</span>
       <span class="bsg-eixo ${s.eixo}">${eixoLabel}</span>
       <span class="bsg-grade">${s.grade || ''}</span>
+      <button class="bsg-close-btn" onclick="event.stopPropagation();toggleSkillCard('${s.code}')" title="Fechar">×</button>
     </div>
     <div class="bsg-title">${esc(s.title)}</div>
     ${toolLinks ? `<div class="bsg-tools">${toolLinks}</div>` : ''}
@@ -720,7 +721,20 @@ async function bnccAplicar() {
     ? smartLocalSearch(`${disc} ${tema} ${serie}`.trim()).slice(0, 20).map(t => ({ nome: t.name, cat: t.category }))
     : [];
 
-  const bnccList = BNCC_SKILLS.map(s => `${s.code}: ${s.title}`).join('\n');
+  // Limit BNCC list to relevant nivel to keep prompt short
+  let relevantSkills = BNCC_SKILLS;
+  if (serie) {
+    const sn = serie.toLowerCase();
+    if (sn.includes('infantil') || sn === 'ei') relevantSkills = BNCC_SKILLS.filter(s => s.nivel === 'EI');
+    else if (/[1-5]/.test(sn) && !sn.includes('6') && !sn.includes('7') && !sn.includes('8') && !sn.includes('9')) relevantSkills = BNCC_SKILLS.filter(s => s.nivel === 'EF1');
+    else if (/[6-9]/.test(sn)) relevantSkills = BNCC_SKILLS.filter(s => s.nivel === 'EF2');
+    else if (sn.includes('médio') || sn.includes('medio') || sn.includes('em')) relevantSkills = BNCC_SKILLS.filter(s => s.nivel === 'EM');
+  }
+  if (code) {
+    const matchedSkill = BNCC_SKILLS.find(s => s.code === code);
+    if (matchedSkill) relevantSkills = BNCC_SKILLS.filter(s => s.nivel === matchedSkill.nivel);
+  }
+  const bnccList = relevantSkills.slice(0, 25).map(s => `${s.code}: ${s.title}`).join('\n');
 
   const sys = `Você é especialista em educação brasileira e BNCC Computação.
 Gere 3 ideias de aula práticas para o contexto fornecido. Cada ideia usa uma abordagem diferente.
@@ -769,7 +783,7 @@ FORMATO EXATO:
       body: JSON.stringify({
         model: 'deepseek-chat',
         messages: [{ role: 'system', content: sys }, { role: 'user', content: ctx }],
-        max_tokens: 1200,
+        max_tokens: 1800,
         temperature: 0.4
       })
     });
@@ -778,7 +792,8 @@ FORMATO EXATO:
     const content = parsed.choices?.[0]?.message?.content || '';
     const match = content.match(/\{[\s\S]*\}/);
     if (!match) throw new Error('JSON não encontrado');
-    _aplicarData = JSON.parse(match[0]);
+    const cleaned = match[0].replace(/,\s*([}\]])/g, '$1');
+    _aplicarData = JSON.parse(cleaned);
     renderAplicarCards(_aplicarData, ctx);
   } catch(e) {
     area.innerHTML = `<div class="bap-error">❌ Erro ao gerar ideias: ${e.message}</div>`;

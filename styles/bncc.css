@@ -336,8 +336,8 @@
 
 /* ── INLINE PANEL — CHIP ROWS ── */
 .bsg-panel-desc{font-size:.82rem;color:var(--muted);line-height:1.6;margin-bottom:14px}
-.bsg-panel-chips{display:flex;flex-direction:column;gap:9px;margin-bottom:16px}
-.bsg-panel-chip-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.bsg-panel-chips{display:flex;flex-direction:column;gap:9px;margin-bottom:16px;min-width:0}
+.bsg-panel-chip-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-width:0}
 .bsg-chip-lbl{font-size:.64rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;padding:3px 9px;border-radius:6px;flex-shrink:0;white-space:nowrap}
 .bsg-chip-lbl.tool{background:rgba(124,111,247,.12);color:#a99ff8;border:1px solid rgba(124,111,247,.22)}
 .bsg-chip-lbl.game{background:rgba(0,212,180,.12);color:var(--bncc-teal);border:1px solid rgba(0,212,180,.22)}
@@ -386,7 +386,14 @@
 .bsg-inline-panel{display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--bncc-border)}
 .bsg-card.expanded .bsg-inline-panel{display:block}
 .bsg-card.expanded{border-color:var(--bncc-border2);background:var(--bncc-surf2)}
-.bsg-card.expanded .bsg-ver-btn{background:rgba(0,212,180,.16);border-color:rgba(0,212,180,.4)}
+.bsg-card.expanded .bsg-ver-btn{display:none}
+/* Close × button — only visible when card is expanded */
+.bsg-close-btn{display:none;margin-left:auto;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:6px;width:22px;height:22px;font-size:.9rem;line-height:1;color:var(--dim);cursor:pointer;flex-shrink:0;align-items:center;justify-content:center;transition:all .18s;padding:0}
+.bsg-close-btn:hover{background:rgba(255,255,255,.14);color:var(--text);border-color:rgba(255,255,255,.28)}
+.bsg-card.expanded .bsg-close-btn{display:flex}
+/* Chip rows overflow fix */
+.bsg-panel-chips{display:flex;flex-direction:column;gap:9px;margin-bottom:16px;min-width:0}
+.bsg-panel-chip-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-width:0}
 .bsg-no-results{text-align:center;padding:40px 24px;color:var(--dim);font-size:.9rem;grid-column:1/-1;line-height:1.7}
 .bncc-grid-count{max-width:980px;margin:0 auto 12px;padding:0 24px;font-size:.72rem;color:var(--dim);letter-spacing:.04em}
 
