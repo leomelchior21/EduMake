@@ -4,41 +4,115 @@ let bnccInited = false;
 let activePillars = new Set(['pc', 'md', 'cd']);
 let expandedSkillCode = null;
 
+// ── BCS: CUSTOM SELECT SYSTEM ──────────────────────────────
+function bcsTog(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const isOpen = el.classList.contains('open');
+  document.querySelectorAll('.bcs.open').forEach(b => b.classList.remove('open'));
+  if (!isOpen) {
+    el.classList.add('open');
+    const s = el.querySelector('.bcs-search');
+    if (s) setTimeout(() => s.focus(), 60);
+  }
+}
+
+function bcsClose() {
+  document.querySelectorAll('.bcs.open').forEach(b => b.classList.remove('open'));
+}
+
+function bcsSearch(optsId, q) {
+  const opts = document.getElementById(optsId);
+  if (!opts) return;
+  const qq = q.toLowerCase().trim();
+  opts.querySelectorAll('.bcs-opt').forEach(o => {
+    o.style.display = (!qq || o.textContent.toLowerCase().includes(qq)) ? '' : 'none';
+  });
+  opts.querySelectorAll('.bcs-group').forEach(g => {
+    let next = g.nextElementSibling;
+    let any = false;
+    while (next && !next.classList.contains('bcs-group')) {
+      if (next.style.display !== 'none') any = true;
+      next = next.nextElementSibling;
+    }
+    g.style.display = any ? '' : 'none';
+  });
+}
+
+function bcsPickCode(code) {
+  const skill = BNCC_SKILLS.find(s => s.code === code);
+  const valEl = document.getElementById('bcs-code-val');
+  if (valEl && skill) {
+    const short = skill.title.length > 44 ? skill.title.slice(0, 44) + '…' : skill.title;
+    valEl.textContent = `${code} — ${short}`;
+  }
+  document.getElementById('bcs-code')?.classList.add('has-value');
+  document.querySelectorAll('#bcs-code-opts .bcs-opt').forEach(o => o.classList.toggle('selected', o.dataset.code === code));
+  bcsClose();
+  bnccQuick(code);
+}
+
+function bcsPickFilter(bcsId, value, label, hiddenSelectId) {
+  const valEl = document.getElementById(bcsId + '-val');
+  if (valEl) valEl.textContent = label;
+  const bcsEl = document.getElementById(bcsId);
+  if (bcsEl) {
+    bcsEl.classList.toggle('has-value', !!value);
+    bcsEl.querySelectorAll('.bcs-opt').forEach(o => o.classList.toggle('selected', o.dataset.val === value));
+  }
+  bcsClose();
+  const hidSel = document.getElementById(hiddenSelectId);
+  if (hidSel) { hidSel.value = value; filterSkillGrid(); }
+}
+
 // ── INIT ──────────────────────────────────────────────────
 function initBncc() {
   if (bnccInited) return;
   bnccInited = true;
 
-  // Populate BNCC code select (grouped by grade)
-  const codeSelect = document.getElementById('bncc-code-select');
-  if (codeSelect) {
+  // Populate code BCS (grouped by grade)
+  const codeOpts = document.getElementById('bcs-code-opts');
+  if (codeOpts) {
     const GRADE_ORDER = ['Educação Infantil','1º Ano','2º Ano','3º Ano','4º Ano','5º Ano','6º Ano','7º Ano','8º Ano','9º Ano','Ensino Médio'];
     const groups = {};
     BNCC_SKILLS.forEach(s => { if (!groups[s.grade]) groups[s.grade] = []; groups[s.grade].push(s); });
+    let html = '';
     GRADE_ORDER.forEach(grade => {
       if (!groups[grade]) return;
-      const og = document.createElement('optgroup');
-      og.label = grade;
+      html += `<div class="bcs-group">${grade}</div>`;
       groups[grade].forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s.code;
-        const short = s.title.length > 58 ? s.title.slice(0, 58) + '…' : s.title;
-        opt.textContent = `${s.code} — ${short}`;
-        og.appendChild(opt);
+        const short = s.title.length > 54 ? s.title.slice(0, 54) + '…' : s.title;
+        html += `<div class="bcs-opt" data-code="${s.code}" onclick="event.stopPropagation();bcsPickCode('${s.code}')">
+          <span class="bcs-opt-code">${s.code}</span>
+          <span class="bcs-opt-title">${esc(short)}</span>
+        </div>`;
       });
-      codeSelect.appendChild(og);
+    });
+    codeOpts.innerHTML = html;
+  }
+
+  // Populate tema BCS (and keep hidden select in sync)
+  const temaOpts = document.getElementById('bcs-tema-opts');
+  const temaHidden = document.getElementById('bncc-filter-tema');
+  if (temaOpts) {
+    const themes = [...new Set(BNCC_SKILLS.map(s => s.tema))].sort();
+    themes.forEach(t => {
+      const div = document.createElement('div');
+      div.className = 'bcs-opt';
+      div.dataset.val = t;
+      div.textContent = t;
+      div.setAttribute('onclick', `event.stopPropagation();bcsPickFilter('bcs-tema','${t}','🎨 ${t}','bncc-filter-tema')`);
+      temaOpts.appendChild(div);
+      if (temaHidden) {
+        const opt = document.createElement('option');
+        opt.value = t; opt.textContent = t;
+        temaHidden.appendChild(opt);
+      }
     });
   }
 
-  // Populate theme select
-  const themeSelect = document.getElementById('bncc-filter-tema');
-  if (themeSelect) {
-    [...new Set(BNCC_SKILLS.map(s => s.tema))].sort().forEach(t => {
-      const opt = document.createElement('option');
-      opt.value = t; opt.textContent = t;
-      themeSelect.appendChild(opt);
-    });
-  }
+  // Close dropdowns on outside click (once)
+  document.addEventListener('click', e => { if (!e.target.closest('.bcs')) bcsClose(); });
 
   buildSkillGrid();
 }

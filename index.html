@@ -303,9 +303,18 @@
       <div class="bncc-entry-icon">🔍</div>
       <div class="bncc-entry-label">Já tenho o código BNCC</div>
       <div class="bncc-entry-sub">Selecione o código e descubra ferramentas e atividades prontas para a aula</div>
-      <select class="bncc-code-select" id="bncc-code-select" onchange="if(this.value)bnccQuick(this.value)">
-        <option value="">Selecione o código BNCC de Computação…</option>
-      </select>
+      <div class="bcs" id="bcs-code">
+        <button class="bcs-btn" onclick="bcsTog('bcs-code')">
+          <span class="bcs-val" id="bcs-code-val">Selecione o código BNCC de Computação…</span>
+          <svg class="bcs-arrow" viewBox="0 0 10 6" fill="none" width="10" height="6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="bcs-drop">
+          <div class="bcs-search-wrap">
+            <input class="bcs-search" placeholder="Buscar código ou palavra-chave…" oninput="bcsSearch('bcs-code-opts',this.value)" onclick="event.stopPropagation()"/>
+          </div>
+          <div class="bcs-opts" id="bcs-code-opts"></div>
+        </div>
+      </div>
     </div>
 
     <div class="bncc-entry-or"><span>ou</span></div>
@@ -366,16 +375,45 @@
       <p>Filtre por nível, tema ou busca livre — clique em qualquer habilidade para ver os recursos</p>
     </div>
     <div id="bncc-filter-bar">
-      <select class="bncc-filter-select" id="bncc-filter-nivel" onchange="filterSkillGrid()">
-        <option value="">📚 Todos os níveis</option>
-        <option value="EI">Educação Infantil</option>
-        <option value="EF1">Anos Iniciais (1º–5º)</option>
-        <option value="EF2">Anos Finais (6º–9º)</option>
-        <option value="EM">Ensino Médio</option>
+      <!-- Hidden selects — lidos por filterSkillGrid() -->
+      <select id="bncc-filter-nivel" style="display:none" onchange="filterSkillGrid()">
+        <option value=""></option><option value="EI">EI</option>
+        <option value="EF1">EF1</option><option value="EF2">EF2</option><option value="EM">EM</option>
       </select>
-      <select class="bncc-filter-select" id="bncc-filter-tema" onchange="filterSkillGrid()">
-        <option value="">🎨 Todos os temas</option>
+      <select id="bncc-filter-tema" style="display:none" onchange="filterSkillGrid()">
+        <option value=""></option>
       </select>
+
+      <!-- Dropdown Nível -->
+      <div class="bcs bcs-filter" id="bcs-nivel">
+        <button class="bcs-btn" onclick="bcsTog('bcs-nivel')">
+          <span class="bcs-val" id="bcs-nivel-val">📚 Todos os níveis</span>
+          <svg class="bcs-arrow" viewBox="0 0 10 6" fill="none" width="10" height="6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="bcs-drop">
+          <div class="bcs-opts">
+            <div class="bcs-opt selected" data-val="" onclick="event.stopPropagation();bcsPickFilter('bcs-nivel','','📚 Todos os níveis','bncc-filter-nivel')">📚 Todos os níveis</div>
+            <div class="bcs-opt" data-val="EI" onclick="event.stopPropagation();bcsPickFilter('bcs-nivel','EI','🎈 Educação Infantil','bncc-filter-nivel')">🎈 Educação Infantil</div>
+            <div class="bcs-opt" data-val="EF1" onclick="event.stopPropagation();bcsPickFilter('bcs-nivel','EF1','📗 Anos Iniciais (1º–5º)','bncc-filter-nivel')">📗 Anos Iniciais (1º–5º)</div>
+            <div class="bcs-opt" data-val="EF2" onclick="event.stopPropagation();bcsPickFilter('bcs-nivel','EF2','📘 Anos Finais (6º–9º)','bncc-filter-nivel')">📘 Anos Finais (6º–9º)</div>
+            <div class="bcs-opt" data-val="EM" onclick="event.stopPropagation();bcsPickFilter('bcs-nivel','EM','🎓 Ensino Médio','bncc-filter-nivel')">🎓 Ensino Médio</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dropdown Tema — opções preenchidas pelo JS -->
+      <div class="bcs bcs-filter" id="bcs-tema">
+        <button class="bcs-btn" onclick="bcsTog('bcs-tema')">
+          <span class="bcs-val" id="bcs-tema-val">🎨 Todos os temas</span>
+          <svg class="bcs-arrow" viewBox="0 0 10 6" fill="none" width="10" height="6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="bcs-drop">
+          <div class="bcs-opts" id="bcs-tema-opts">
+            <div class="bcs-opt selected" data-val="" onclick="event.stopPropagation();bcsPickFilter('bcs-tema','','🎨 Todos os temas','bncc-filter-tema')">🎨 Todos os temas</div>
+          </div>
+        </div>
+      </div>
+
       <input class="bncc-filter-search" id="bncc-filter-search" placeholder="🔍 Busca por código ou palavra…" oninput="filterSkillGrid()"/>
     </div>
     <div id="bncc-skill-grid"></div>
