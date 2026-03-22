@@ -692,6 +692,157 @@ async function bnccGuiadaSearch() {
   await bnccNLSearch();
 }
 
+// ── VAMOS APLICAR! ─────────────────────────────────────────
+let _aplicarData = null;
+
+async function bnccAplicar() {
+  const disc   = document.getElementById('bncc-g-disc')?.value.trim()  || '';
+  const serie  = document.getElementById('bncc-g-serie')?.value.trim() || '';
+  const tema   = document.getElementById('bncc-g-tema')?.value.trim()  || '';
+  const code   = _bcsSelectedCode || '';
+  if (!disc && !serie && !tema && !code) return;
+
+  const area = document.getElementById('bncc-aplicar-area');
+  const btn  = document.getElementById('bncc-aplicar-btn');
+  area.classList.remove('hidden');
+  area.innerHTML = '<div class="bap-loading"><div class="bncc-spinner"></div><span>Criando 3 ideias para sua aula…</span></div>';
+  area.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (btn) { btn.disabled = true; btn.classList.add('loading'); }
+
+  const ctxParts = [];
+  if (disc)  ctxParts.push(`Disciplina: ${disc}`);
+  if (serie) ctxParts.push(`Série/Nível: ${serie}`);
+  if (tema)  ctxParts.push(`Tema: ${tema}`);
+  if (code)  ctxParts.push(`Código BNCC: ${code}`);
+  const ctx = ctxParts.join(' | ');
+
+  const tools = typeof smartLocalSearch === 'function'
+    ? smartLocalSearch(`${disc} ${tema} ${serie}`.trim()).slice(0, 20).map(t => ({ nome: t.name, cat: t.category }))
+    : [];
+
+  const sys = `Você é especialista em educação brasileira (BNCC) e EdTech.
+Gere 3 ideias de aula práticas para o contexto fornecido. Cada ideia usa uma abordagem diferente.
+Use ferramentas reais e acessíveis para professores brasileiros.
+
+Responda APENAS com JSON puro — sem texto fora, sem blocos de código.
+FORMATO EXATO:
+{
+  "ferramenta": {
+    "titulo": "título curto e motivador",
+    "descricao": "1 frase do que professor e alunos vão fazer",
+    "ferramenta": "nome da ferramenta digital (ex: Canva, Scratch, GeoGebra…)",
+    "como_usar": "passo prático e direto: como usar a ferramenta na aula",
+    "bncc": "código BNCC de computação mais alinhado (ex: EF06CO01)"
+  },
+  "jogo": {
+    "titulo": "título curto e motivador",
+    "descricao": "1 frase do que professor e alunos vão fazer",
+    "jogo": "nome do jogo ou plataforma gamificada (ex: Kahoot, Code Combat…)",
+    "como_usar": "passo prático e direto: como usar o jogo na aula",
+    "bncc": "código BNCC de computação mais alinhado"
+  },
+  "steam": {
+    "titulo": "título curto e motivador",
+    "descricao": "1 frase do que professor e alunos vão fazer",
+    "atividade": "nome da atividade prática/maker/unplugged (ex: Robô de papel, Caça ao algoritmo…)",
+    "como_usar": "passo prático e direto: como realizar a atividade em sala",
+    "bncc": "código BNCC de computação mais alinhado"
+  }
+}
+
+Ferramentas disponíveis no catálogo: ${JSON.stringify(tools)}`;
+
+  try {
+    const resp = await fetch(DEEPSEEK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DEEPSEEK_KEY}` },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [{ role: 'system', content: sys }, { role: 'user', content: ctx }],
+        max_tokens: 1200,
+        temperature: 0.4
+      })
+    });
+    const raw = await resp.text();
+    const parsed = JSON.parse(raw);
+    const content = parsed.choices?.[0]?.message?.content || '';
+    const match = content.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('JSON não encontrado');
+    _aplicarData = JSON.parse(match[0]);
+    renderAplicarCards(_aplicarData, ctx);
+  } catch(e) {
+    area.innerHTML = `<div class="bap-error">❌ Erro ao gerar ideias: ${e.message}</div>`;
+  } finally {
+    if (btn) { btn.disabled = false; btn.classList.remove('loading'); }
+  }
+}
+
+function renderAplicarCards(data, ctx) {
+  const area = document.getElementById('bncc-aplicar-area');
+  const cats = [
+    { key: 'ferramenta', label: 'Ferramenta Digital', icon: '🛠️', cls: 'bap-tool',  nameKey: 'ferramenta' },
+    { key: 'jogo',       label: 'Jogo / Gamificação', icon: '🎮', cls: 'bap-game',  nameKey: 'jogo' },
+    { key: 'steam',      label: 'STEAM / Prática',    icon: '⚗️', cls: 'bap-steam', nameKey: 'atividade' }
+  ];
+
+  const cards = cats.map((cat, i) => {
+    const d = data[cat.key];
+    if (!d) return '';
+    const name = d[cat.nameKey] || '';
+    const deepQuery = `${d.titulo} usando ${name}${ctx ? ' — contexto: ' + ctx : ''}`;
+    return `<div class="bap-card ${cat.cls}" id="bap-card-${i}">
+      <div class="bap-card-top">
+        <span class="bap-badge">${cat.icon} ${cat.label}</span>
+        ${d.bncc ? `<span class="bap-bncc-code">${d.bncc}</span>` : ''}
+      </div>
+      <div class="bap-title">${d.titulo}</div>
+      <div class="bap-desc">${d.descricao}</div>
+      <div class="bap-resource">
+        <span class="bap-resource-lbl">${cat.nameKey === 'atividade' ? 'Atividade' : cat.nameKey === 'jogo' ? 'Jogo' : 'Ferramenta'}:</span>
+        <span class="bap-resource-name">${name}</span>
+      </div>
+      <div class="bap-como"><strong>Como usar:</strong> ${d.como_usar}</div>
+      <div class="bap-actions">
+        <button class="bap-aprofundar-btn" onclick="bnccAprofundar(${i})">
+          Aprofundar →
+        </button>
+      </div>
+      <div class="bap-deep hidden" id="bap-deep-${i}">
+        <div class="bap-deep-hint">Adicione contexto da sua turma (opcional):</div>
+        <textarea class="bap-deep-textarea" id="bap-deep-ctx-${i}" rows="2" placeholder="Ex: 28 alunos, poucos computadores, 6º ano…"></textarea>
+        <button class="bap-deep-go" onclick="bnccAprofundarGo(${i},'${encodeURIComponent(deepQuery)}')">
+          ✦ Gerar plano completo na página inicial
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+
+  area.innerHTML = `
+    <div class="bap-header">
+      <div class="bap-header-title">✦ 3 ideias prontas para aplicar</div>
+      <div class="bap-header-sub">Escolha uma — ou explore as três com sua turma</div>
+    </div>
+    <div class="bap-grid">${cards}</div>`;
+}
+
+function bnccAprofundar(idx) {
+  const deep = document.getElementById(`bap-deep-${idx}`);
+  const btn  = document.querySelector(`#bap-card-${idx} .bap-aprofundar-btn`);
+  if (!deep) return;
+  const isOpen = !deep.classList.contains('hidden');
+  deep.classList.toggle('hidden', isOpen);
+  if (btn) btn.textContent = isOpen ? 'Aprofundar →' : 'Fechar ↑';
+}
+
+function bnccAprofundarGo(idx, encodedQuery) {
+  const ctx  = document.getElementById(`bap-deep-ctx-${idx}`)?.value.trim() || '';
+  let q = decodeURIComponent(encodedQuery);
+  if (ctx) q += `. Turma: ${ctx}`;
+  if (typeof showPage === 'function') showPage('home');
+  if (typeof setNL === 'function') setNL(q);
+  setTimeout(() => { if (typeof doSearch === 'function') doSearch(); }, 120);
+}
+
 // ── NL SEARCH ─────────────────────────────────────────────
 function bnccNLFill(text) {
   const inp = document.getElementById('bncc-nl-input');

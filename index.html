@@ -328,12 +328,15 @@
       </div>
     </div>
     <p class="bncc-grid-hint">💡 Preencha qualquer campo — qualquer combinação funciona</p>
-    <button class="sbtn" onclick="bnccGuiadaSearch()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      <span>Buscar ferramentas e habilidades</span>
+    <button class="sbtn bncc-aplicar-btn" id="bncc-aplicar-btn" onclick="bnccAplicar()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15"><path d="M5 12l5 5L20 7"/></svg>
+      <span>Vamos aplicar!</span>
     </button>
     <div id="bncc-nl-result" class="bncc-nl-result hidden"></div>
   </div>
+
+  <!-- APLICAR RESULT -->
+  <div id="bncc-aplicar-area" class="hidden"></div>
 
   <!-- SKILL RESULT -->
   <div class="bncc-results hidden" id="bncc-results">
