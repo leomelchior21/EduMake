@@ -750,31 +750,9 @@ ${bnccList}
 
 Ferramentas disponíveis no catálogo: ${JSON.stringify(tools)}
 
-Responda APENAS com JSON puro — sem texto fora, sem blocos de código.
-FORMATO EXATO:
-{
-  "ferramenta": {
-    "titulo": "título curto e motivador",
-    "descricao": "1 frase do que professor e alunos vão fazer",
-    "ferramenta": "nome da ferramenta digital (ex: Canva, Scratch, GeoGebra…)",
-    "como_usar": "passo prático e direto: como usar a ferramenta na aula",
-    "bncc": "código BNCC Computação exato da lista (ex: EF06CO01)"
-  },
-  "jogo": {
-    "titulo": "título curto e motivador",
-    "descricao": "1 frase do que professor e alunos vão fazer",
-    "jogo": "nome do jogo ou plataforma gamificada (ex: Kahoot, Code Combat…)",
-    "como_usar": "passo prático e direto: como usar o jogo na aula",
-    "bncc": "código BNCC Computação exato da lista"
-  },
-  "steam": {
-    "titulo": "título curto e motivador",
-    "descricao": "1 frase do que professor e alunos vão fazer",
-    "atividade": "nome da atividade prática/maker/unplugged (ex: Robô de papel, Caça ao algoritmo…)",
-    "como_usar": "passo prático e direto: como realizar a atividade em sala",
-    "bncc": "código BNCC Computação exato da lista"
-  }
-}`;
+Responda APENAS com JSON válido. Sem texto fora do JSON. Sem blocos de código.
+FORMATO EXATO (mantenha todos os campos, textos curtos):
+{"ferramenta":{"titulo":"título curto","descricao":"1 frase","ferramenta":"nome da ferramenta","bncc":"código da lista"},"jogo":{"titulo":"título curto","descricao":"1 frase","jogo":"nome do jogo","bncc":"código da lista"},"steam":{"titulo":"título curto","descricao":"1 frase","atividade":"nome da atividade","bncc":"código da lista"}}`;
 
   try {
     const resp = await fetch(DEEPSEEK_URL, {
@@ -783,8 +761,9 @@ FORMATO EXATO:
       body: JSON.stringify({
         model: 'deepseek-chat',
         messages: [{ role: 'system', content: sys }, { role: 'user', content: ctx }],
-        max_tokens: 1800,
-        temperature: 0.4
+        max_tokens: 800,
+        temperature: 0.4,
+        response_format: { type: 'json_object' }
       })
     });
     const raw = await resp.text();
