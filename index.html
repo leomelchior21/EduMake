@@ -302,19 +302,10 @@
     <div class="bncc-entry-card bncc-entry-code">
       <div class="bncc-entry-icon">🔍</div>
       <div class="bncc-entry-label">Já tenho o código BNCC</div>
-      <div class="bncc-entry-sub">Cole o código e descubra ferramentas e atividades prontas para a aula</div>
-      <div class="bncc-code-row">
-        <input class="bncc-code-input" id="bncc-code-input" placeholder="Ex: EF06CO02, EM13CO10…" onkeydown="if(event.key==='Enter')bnccSearch()"/>
-        <button class="bncc-go-btn" onclick="bnccSearch()">Buscar →</button>
-      </div>
-      <div class="bncc-chips">
-        <span class="bncc-chip" onclick="bnccQuick('EI03CO01')">EI03CO01</span>
-        <span class="bncc-chip" onclick="bnccQuick('EF01CO02')">EF01CO02</span>
-        <span class="bncc-chip" onclick="bnccQuick('EF03CO01')">EF03CO01</span>
-        <span class="bncc-chip" onclick="bnccQuick('EF06CO02')">EF06CO02</span>
-        <span class="bncc-chip" onclick="bnccQuick('EF07CO07')">EF07CO07</span>
-        <span class="bncc-chip" onclick="bnccQuick('EM13CO10')">EM13CO10</span>
-      </div>
+      <div class="bncc-entry-sub">Selecione o código e descubra ferramentas e atividades prontas para a aula</div>
+      <select class="bncc-code-select" id="bncc-code-select" onchange="if(this.value)bnccQuick(this.value)">
+        <option value="">Selecione o código BNCC de Computação…</option>
+      </select>
     </div>
 
     <div class="bncc-entry-or"><span>ou</span></div>

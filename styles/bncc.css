@@ -246,6 +246,51 @@
 .bncc-example-inspo-item:hover{border-color:var(--bncc-border2);color:var(--text);background:var(--bncc-surf)}
 .bncc-example-inspo-item span{font-size:.7rem}
 
+/* ── CODE SELECT (left entry card) ── */
+.bncc-code-select{
+  width:100%;padding:12px 38px 12px 16px;
+  background:rgba(124,111,247,.08);
+  border:1px solid rgba(124,111,247,.28);
+  border-radius:11px;color:var(--text);font-family:var(--fb);font-size:.88rem;
+  outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a99ff8' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;
+  transition:border-color .2s,box-shadow .2s;
+  margin-bottom:4px;
+}
+.bncc-code-select:focus{border-color:rgba(124,111,247,.6);box-shadow:0 0 0 3px rgba(124,111,247,.1)}
+.bncc-code-select option{background:#0d0d1f;color:var(--text);padding:6px}
+.bncc-code-select optgroup{font-size:.8rem;font-weight:700;color:#a99ff8}
+
+/* ── EXPANDED CARD — SPAN 2 COLUMNS ── */
+#bncc-skill-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;max-width:980px;margin:0 auto 40px;padding:0 24px}
+.bsg-card.expanded{grid-column:span 2}
+
+/* ── INLINE PANEL — CHIP ROWS ── */
+.bsg-panel-desc{font-size:.82rem;color:var(--muted);line-height:1.6;margin-bottom:14px}
+.bsg-panel-chips{display:flex;flex-direction:column;gap:9px;margin-bottom:16px}
+.bsg-panel-chip-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.bsg-chip-lbl{font-size:.64rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;padding:3px 9px;border-radius:6px;flex-shrink:0;white-space:nowrap}
+.bsg-chip-lbl.tool{background:rgba(124,111,247,.12);color:#a99ff8;border:1px solid rgba(124,111,247,.22)}
+.bsg-chip-lbl.game{background:rgba(0,212,180,.12);color:var(--bncc-teal);border:1px solid rgba(0,212,180,.22)}
+.bsg-chip-lbl.steam{background:rgba(255,140,66,.12);color:#ff8c42;border:1px solid rgba(255,140,66,.22)}
+.bsg-chip{font-size:.75rem;padding:4px 11px;border-radius:100px;text-decoration:none;cursor:pointer;transition:all .18s;display:inline-flex;align-items:center}
+.bsg-chip.tool{background:rgba(124,111,247,.08);border:1px solid rgba(124,111,247,.2);color:#a99ff8}
+.bsg-chip.tool:hover{background:rgba(124,111,247,.2);border-color:rgba(124,111,247,.45)}
+.bsg-chip.game{background:rgba(0,212,180,.08);border:1px solid rgba(0,212,180,.2);color:var(--bncc-teal)}
+.bsg-chip.game:hover{background:rgba(0,212,180,.2);border-color:rgba(0,212,180,.45)}
+.bsg-chip.steam{background:rgba(255,140,66,.08);border:1px solid rgba(255,140,66,.2);color:#ff8c42}
+.bsg-chip.steam:hover{background:rgba(255,140,66,.2);border-color:rgba(255,140,66,.45)}
+
+/* ── "QUE TAL IDEIAS?" SECTION ── */
+.bsg-ideas-section{border-top:1px solid var(--bncc-border);padding-top:16px;margin-top:4px}
+.bsg-ideas-heading{font-family:var(--fd);font-size:.98rem;font-weight:800;color:var(--text);margin-bottom:5px;letter-spacing:-.01em}
+.bsg-ideas-sub{font-size:.75rem;color:var(--muted);margin-bottom:12px;font-weight:300;line-height:1.5}
+.bsg-ideas-textarea{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(0,212,180,.2);border-radius:10px;padding:10px 13px;color:var(--text);font-family:var(--fb);font-size:.82rem;resize:none;outline:none;box-sizing:border-box;transition:.2s;margin-bottom:10px;min-height:56px}
+.bsg-ideas-textarea:focus{border-color:rgba(0,212,180,.45);box-shadow:0 0 0 3px rgba(0,212,180,.08)}
+.bsg-ideas-btn{width:100%;padding:13px;border-radius:11px;background:linear-gradient(135deg,var(--bncc-teal),var(--bncc-teal2));border:none;color:#03150f;font-family:var(--fd);font-size:.9rem;font-weight:800;cursor:pointer;transition:all .25s;animation:cta-pulse 2s infinite;letter-spacing:-.01em}
+.bsg-ideas-btn:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,212,180,.35)}
+
 /* ── NEW: Filter bar (Improvement 4) ── */
 #bncc-filter-bar{display:flex;gap:10px;flex-wrap:wrap;max-width:980px;margin:0 auto 28px;padding:0 24px}
 .bncc-filter-select{flex:1;min-width:180px;padding:10px 14px;background:var(--bncc-surf);border:1px solid var(--bncc-border);border-radius:10px;color:var(--text);font-family:var(--fb);font-size:.84rem;outline:none;cursor:pointer;transition:border-color .2s}
@@ -254,8 +299,7 @@
 .bncc-filter-search:focus{border-color:var(--bncc-teal)}
 .bncc-filter-search::placeholder{color:var(--dim)}
 
-/* ── NEW: Skill grid (Improvement 4) ── */
-#bncc-skill-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;max-width:980px;margin:0 auto 40px;padding:0 24px}
+/* ── Skill grid (overridden above with 2-col fixed) ── */
 .bsg-card{background:var(--bncc-surf);border:1px solid var(--bncc-border);border-radius:16px;padding:18px;transition:all .22s;position:relative;cursor:pointer}
 .bsg-card:hover{border-color:var(--bncc-border2);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,212,180,.1)}
 .bsg-card-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
@@ -376,4 +420,6 @@
   .bncc-entry-or{padding:0}
   .bncc-entry-or span{display:none}
   .bncc-3col{grid-template-columns:1fr}
+  #bncc-skill-grid{grid-template-columns:1fr;padding:0 14px}
+  .bsg-card.expanded{grid-column:span 1}
 }

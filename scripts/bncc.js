@@ -8,6 +8,28 @@ let expandedSkillCode = null;
 function initBncc() {
   if (bnccInited) return;
   bnccInited = true;
+
+  // Populate BNCC code select (grouped by grade)
+  const codeSelect = document.getElementById('bncc-code-select');
+  if (codeSelect) {
+    const GRADE_ORDER = ['Educação Infantil','1º Ano','2º Ano','3º Ano','4º Ano','5º Ano','6º Ano','7º Ano','8º Ano','9º Ano','Ensino Médio'];
+    const groups = {};
+    BNCC_SKILLS.forEach(s => { if (!groups[s.grade]) groups[s.grade] = []; groups[s.grade].push(s); });
+    GRADE_ORDER.forEach(grade => {
+      if (!groups[grade]) return;
+      const og = document.createElement('optgroup');
+      og.label = grade;
+      groups[grade].forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.code;
+        const short = s.title.length > 58 ? s.title.slice(0, 58) + '…' : s.title;
+        opt.textContent = `${s.code} — ${short}`;
+        og.appendChild(opt);
+      });
+      codeSelect.appendChild(og);
+    });
+  }
+
   // Populate theme select
   const themeSelect = document.getElementById('bncc-filter-tema');
   if (themeSelect) {
@@ -17,6 +39,7 @@ function initBncc() {
       themeSelect.appendChild(opt);
     });
   }
+
   buildSkillGrid();
 }
 
@@ -163,60 +186,55 @@ function toggleSkillCard(code) {
 function renderInlineSkillPanel(skill, panel) {
   currentBnccSkill = skill;
   const res = BNCC_RES[skill.code] || getBnccResFallback(skill.code, skill);
+  const steam = (res.steam && res.steam.length) ? res.steam : getBnccSteamFallback(skill);
   let h = '';
 
   // Description
-  h += `<p style="font-size:.84rem;color:var(--muted);line-height:1.6;margin-bottom:16px">${esc(skill.desc)}</p>`;
+  h += `<p class="bsg-panel-desc">${esc(skill.desc)}</p>`;
 
-  if (res) {
-    // Tools
-    if (res.tools && res.tools.length) {
-      h += `<div style="font-size:.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);margin-bottom:8px">🛠 Ferramentas</div>`;
-      h += `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">`;
-      res.tools.forEach(t => {
-        const toolName = t.name || t;
-        const td = TOOLS.find(x => x.tool.toLowerCase() === toolName.toLowerCase());
-        const href = td ? td.link : (t.url || '#');
-        h += `<a href="${href}" target="_blank" rel="noopener" class="bsg-tool-link" onclick="event.stopPropagation()">${esc(toolName)}</a>`;
-      });
-      h += `</div>`;
-    }
-    // Games
-    if (res.games && res.games.length) {
-      h += `<div style="font-size:.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);margin-bottom:8px">🎮 Jogos e atividades</div>`;
-      h += `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">`;
-      res.games.forEach(g => {
-        const gameName = g.name || g;
-        const td = TOOLS.find(x => x.tool.toLowerCase() === gameName.toLowerCase());
-        const href = td ? td.link : (g.url || '#');
-        h += `<a href="${href}" target="_blank" rel="noopener" class="bsg-tool-link" onclick="event.stopPropagation()">🎮 ${esc(gameName)}</a>`;
-      });
-      h += `</div>`;
-    }
-    // Ideas/examples
-    if (skill.ex && skill.ex.length) {
-      h += `<div style="font-size:.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);margin-bottom:8px">💡 Ideias de atividade</div>`;
-      h += `<ul style="list-style:none;display:flex;flex-direction:column;gap:5px;margin-bottom:14px">`;
-      skill.ex.forEach(e => {
-        h += `<li style="font-size:.81rem;color:var(--muted);line-height:1.5;padding:6px 10px;background:rgba(0,212,180,.05);border-radius:8px;border-left:2px solid rgba(0,212,180,.3)">• ${esc(e)}</li>`;
-      });
-      h += `</ul>`;
-    }
+  // Resource chips — 3 color groups
+  h += `<div class="bsg-panel-chips">`;
+  if (res.tools?.length) {
+    h += `<div class="bsg-panel-chip-row"><span class="bsg-chip-lbl tool">🔧 Ferramentas</span>`;
+    res.tools.forEach(t => {
+      const toolName = t.name || t;
+      const td = TOOLS.find(x => x.tool.toLowerCase() === toolName.toLowerCase());
+      const href = td ? td.link : (t.url || '#');
+      h += `<a class="bsg-chip tool" href="${esc(href)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${esc(toolName)}</a>`;
+    });
+    h += `</div>`;
   }
+  if (res.games?.length) {
+    h += `<div class="bsg-panel-chip-row"><span class="bsg-chip-lbl game">🎮 Jogos</span>`;
+    res.games.forEach(g => {
+      const gameName = g.name || g;
+      const href = g.url || '#';
+      const tag = href !== '#' ? `<a class="bsg-chip game" href="${esc(href)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${esc(gameName)}</a>`
+                               : `<span class="bsg-chip game">${esc(gameName)}</span>`;
+      h += tag;
+    });
+    h += `</div>`;
+  }
+  if (steam?.length) {
+    h += `<div class="bsg-panel-chip-row"><span class="bsg-chip-lbl steam">🌱 STEAM</span>`;
+    steam.forEach(s => {
+      const href = s.url || '#';
+      const tag = href !== '#' ? `<a class="bsg-chip steam" href="${esc(href)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${esc(s.name)}</a>`
+                               : `<span class="bsg-chip steam">${esc(s.name)}</span>`;
+      h += tag;
+    });
+    h += `</div>`;
+  }
+  h += `</div>`;
 
-  // Mini AI panel
-  h += `<div style="border-top:1px solid var(--bncc-border);padding-top:14px;margin-top:4px">
-    <div style="font-size:.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);margin-bottom:10px">✦ Sugestões para esta habilidade</div>
-    <div style="margin-bottom:10px">
-      <label style="font-size:.7rem;color:var(--dim);display:block;margin-bottom:5px">Sobre sua turma <span style="font-weight:300">(opcional)</span></label>
-      <textarea id="bsg-ctx-${skill.code}" style="width:100%;background:var(--bncc-surf);border:1px solid var(--bncc-border);border-radius:8px;padding:8px 10px;color:var(--text);font-family:var(--fb);font-size:.78rem;resize:none;outline:none;min-height:52px" placeholder="Ex: 28 alunos, 6º ano, poucos computadores…" rows="2" onclick="event.stopPropagation()"></textarea>
-    </div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px">
-      <button style="flex:1;min-width:120px;padding:8px 10px;border-radius:8px;background:rgba(0,212,180,.08);border:1px solid rgba(0,212,180,.2);color:var(--bncc-teal);font-family:var(--fb);font-size:.74rem;font-weight:600;cursor:pointer" onclick="event.stopPropagation();callBnccAIInline('plano','${skill.code}')">📋 Plano de aula</button>
-      <button style="flex:1;min-width:120px;padding:8px 10px;border-radius:8px;background:rgba(0,212,180,.08);border:1px solid rgba(0,212,180,.2);color:var(--bncc-teal);font-family:var(--fb);font-size:.74rem;font-weight:600;cursor:pointer" onclick="event.stopPropagation();callBnccAIInline('rubrica','${skill.code}')">📊 Rubrica</button>
-      <button style="flex:1;min-width:120px;padding:8px 10px;border-radius:8px;background:rgba(0,212,180,.08);border:1px solid rgba(0,212,180,.2);color:var(--bncc-teal);font-family:var(--fb);font-size:.74rem;font-weight:600;cursor:pointer" onclick="event.stopPropagation();callBnccAIInline('sequencia','${skill.code}')">🗓 Sequência didática</button>
-    </div>
-    <div id="bsg-ai-out-${skill.code}" style="margin-top:12px"></div>
+  // "Que tal ideias?" CTA
+  h += `<div class="bsg-ideas-section">
+    <div class="bsg-ideas-heading">💡 Que tal ideias pra esse código?</div>
+    <div class="bsg-ideas-sub">Conte sobre sua aula — tema, turma, recursos disponíveis. A IA gera 5 ideias completas com manual de uso.</div>
+    <textarea class="bsg-ideas-textarea" id="bsg-ctx-${skill.code}"
+      placeholder="Ex: tema de frações, 28 alunos, 5º ano, poucos computadores, turma animada…"
+      onclick="event.stopPropagation()" rows="2"></textarea>
+    <button class="bsg-ideas-btn" onclick="event.stopPropagation();generateIdeasFromCard('${skill.code}')">Vamos lá! →</button>
   </div>`;
 
   panel.innerHTML = h;
@@ -772,6 +790,17 @@ function copyAIOutput(btn) {
 
 function bnccCodeHint() {
   // Could add autocomplete in future
+}
+
+// ── GENERATE IDEAS FROM CARD ────────────────────────────
+async function generateIdeasFromCard(code) {
+  const skill = BNCC_SKILLS.find(s => s.code === code);
+  if (!skill) return;
+  const ctx = (document.getElementById('bsg-ctx-' + code)?.value || '').trim();
+  const query = `${skill.title} para ${skill.grade}${ctx ? ' — ' + ctx : ''}. Habilidade BNCC de Computação: ${skill.code}`;
+  showPage('home');
+  setNL(query);
+  await doSearch();
 }
 
 // ── HIDE RESULT (back to entry) ──────────────────────────
