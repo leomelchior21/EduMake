@@ -720,9 +720,21 @@ async function bnccAplicar() {
     ? smartLocalSearch(`${disc} ${tema} ${serie}`.trim()).slice(0, 20).map(t => ({ nome: t.name, cat: t.category }))
     : [];
 
-  const sys = `Você é especialista em educação brasileira (BNCC) e EdTech.
+  const bnccList = BNCC_SKILLS.map(s => `${s.code}: ${s.title}`).join('\n');
+
+  const sys = `Você é especialista em educação brasileira e BNCC Computação.
 Gere 3 ideias de aula práticas para o contexto fornecido. Cada ideia usa uma abordagem diferente.
 Use ferramentas reais e acessíveis para professores brasileiros.
+
+REGRA ABSOLUTA — BNCC COMPUTAÇÃO É OBRIGATÓRIO:
+- TODA ideia DEVE referenciar ao menos 1 código da lista de BNCC Computação abaixo
+- O código escolhido deve ser REAL (da lista) e a ideia deve ser DESENHADA para cumprir aquela habilidade
+- NÃO invente códigos — use APENAS os da lista
+
+CÓDIGOS BNCC COMPUTAÇÃO DISPONÍVEIS:
+${bnccList}
+
+Ferramentas disponíveis no catálogo: ${JSON.stringify(tools)}
 
 Responda APENAS com JSON puro — sem texto fora, sem blocos de código.
 FORMATO EXATO:
@@ -732,25 +744,23 @@ FORMATO EXATO:
     "descricao": "1 frase do que professor e alunos vão fazer",
     "ferramenta": "nome da ferramenta digital (ex: Canva, Scratch, GeoGebra…)",
     "como_usar": "passo prático e direto: como usar a ferramenta na aula",
-    "bncc": "código BNCC de computação mais alinhado (ex: EF06CO01)"
+    "bncc": "código BNCC Computação exato da lista (ex: EF06CO01)"
   },
   "jogo": {
     "titulo": "título curto e motivador",
     "descricao": "1 frase do que professor e alunos vão fazer",
     "jogo": "nome do jogo ou plataforma gamificada (ex: Kahoot, Code Combat…)",
     "como_usar": "passo prático e direto: como usar o jogo na aula",
-    "bncc": "código BNCC de computação mais alinhado"
+    "bncc": "código BNCC Computação exato da lista"
   },
   "steam": {
     "titulo": "título curto e motivador",
     "descricao": "1 frase do que professor e alunos vão fazer",
     "atividade": "nome da atividade prática/maker/unplugged (ex: Robô de papel, Caça ao algoritmo…)",
     "como_usar": "passo prático e direto: como realizar a atividade em sala",
-    "bncc": "código BNCC de computação mais alinhado"
+    "bncc": "código BNCC Computação exato da lista"
   }
-}
-
-Ferramentas disponíveis no catálogo: ${JSON.stringify(tools)}`;
+}`;
 
   try {
     const resp = await fetch(DEEPSEEK_URL, {

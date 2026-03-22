@@ -71,7 +71,7 @@ REGRAS ABSOLUTAS — VIOLÁ-LAS É ERRO CRÍTICO:
 - O campo "tool" de cada ideia DEVE ser diferente (variedade de ferramentas)
 
 FORMATO EXATO (descrições curtas e objetivas — máximo 1 frase cada):
-{"query_understood":"resumo da busca","nivel":"nível/série","tools":[{"name":"nome exato","emoji":"emoji","reason":"motivo breve"}],"ideas":[{"id":1,"title":"título curto","description":"1 frase do que o professor vai fazer","tool":"nome exato da ferramenta","tool_emoji":"emoji","manual":["Passo 1: ação concreta com a ferramenta","Passo 2: ação dos alunos","Passo 3: encerramento ou avaliação rápida"]},{"id":2,"title":"...","description":"...","tool":"...","tool_emoji":"...","manual":["...","...","..."]},{"id":3,"title":"...","description":"...","tool":"...","tool_emoji":"...","manual":["...","...","..."]},{"id":4,"title":"...","description":"...","tool":"...","tool_emoji":"...","manual":["...","...","..."]},{"id":5,"title":"...","description":"...","tool":"...","tool_emoji":"...","manual":["...","...","..."]}],"bncc":["código1","código2"]}`;
+{"query_understood":"resumo da busca","nivel":"nível/série","tools":[{"name":"nome exato","emoji":"emoji","reason":"motivo breve"}],"ideas":[{"id":1,"title":"título curto","description":"1 frase do que o professor vai fazer","tool":"nome exato da ferramenta","tool_emoji":"emoji","bncc_codes":["código BNCC alinhado"]},{"id":2,"title":"...","description":"...","tool":"...","tool_emoji":"...","bncc_codes":["..."]},{"id":3,"title":"...","description":"...","tool":"...","tool_emoji":"...","bncc_codes":["..."]},{"id":4,"title":"...","description":"...","tool":"...","tool_emoji":"...","bncc_codes":["..."]},{"id":5,"title":"...","description":"...","tool":"...","tool_emoji":"...","bncc_codes":["..."]}],"bncc":["código1","código2"]}`;
 
   const resp = await fetch(DEEPSEEK_URL, {
     method: 'POST',
@@ -170,15 +170,15 @@ function renderResult(data) {
       <div class="ideas-tools-row">${toolChips}</div>
       <div class="ideas-grid">`;
     data.ideas.forEach(idea=>{
-      const manualHtml = idea.manual?.length
-        ? `<div class="idea-manual"><div class="idea-manual-lbl">📖 Manual de uso</div>${idea.manual.map((s,i)=>`<div class="idea-manual-step"><span class="idea-manual-num">${i+1}</span><span>${esc(s)}</span></div>`).join('')}</div>`
+      const bnccChips = idea.bncc_codes?.length
+        ? `<div class="idea-bncc-row">${idea.bncc_codes.map(c=>`<span class="idea-bncc-chip">${esc(c)}</span>`).join('')}</div>`
         : '';
       h+=`<div class="idea-card" onclick="deepenIdea(${idea.id})">
         <div class="idea-num">${idea.id}</div>
         <div class="idea-body">
           <div class="idea-title">${esc(idea.title)}</div>
           <div class="idea-desc">${esc(idea.description)}</div>
-          ${manualHtml}
+          ${bnccChips}
           <span class="idea-tool">${idea.tool_emoji||'🔧'} ${esc(idea.tool)}</span>
         </div>
         <div class="idea-arrow">Aprofundar →</div>

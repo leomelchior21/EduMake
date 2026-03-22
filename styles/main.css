@@ -417,6 +417,8 @@ footer span{color:var(--muted)}
 .idea-title{font-family:var(--fd);font-size:1rem;font-weight:800;color:#fff;line-height:1.22;letter-spacing:-.025em;margin-bottom:5px}
 .idea-desc{font-size:.78rem;color:rgba(240,240,250,.48);line-height:1.58;font-weight:300;margin-bottom:9px}
 .idea-tool{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:100px;background:rgba(61,216,196,.1);border:1px solid rgba(61,216,196,.28);font-size:.71rem;color:#7de8d8;font-weight:700;font-family:var(--fb);width:fit-content}
+.idea-bncc-row{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 4px}
+.idea-bncc-chip{font-size:.65rem;font-weight:700;font-family:monospace;padding:3px 8px;border-radius:6px;background:rgba(124,111,247,.12);border:1px solid rgba(124,111,247,.28);color:#c4bffe;letter-spacing:.02em}
 .idea-arrow{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:8px;background:rgba(124,111,247,.1);border:1px solid rgba(124,111,247,.2);color:#a99ff8;font-size:.72rem;font-weight:600;flex-shrink:0;margin-top:auto;white-space:nowrap;transition:all .2s;align-self:flex-end}
 .idea-card:hover .idea-arrow{background:rgba(124,111,247,.2);border-color:rgba(124,111,247,.4);transform:translateX(2px)}
 .ideas-tools-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.07)}
