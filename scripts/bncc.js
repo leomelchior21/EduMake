@@ -806,7 +806,6 @@ function renderAplicarCards(data, ctx) {
         <span class="bap-resource-lbl">${cat.nameKey === 'atividade' ? 'Atividade' : cat.nameKey === 'jogo' ? 'Jogo' : 'Ferramenta'}:</span>
         <span class="bap-resource-name">${name}</span>
       </div>
-      <div class="bap-como"><strong>Como usar:</strong> ${d.como_usar}</div>
       <button class="bap-choose-btn ${cat.cls}-choose" onclick="event.stopPropagation();bnccChooseIdea(${i})">
         Escolher esta ideia →
       </button>

@@ -545,6 +545,24 @@
 #bncc-results{max-width:960px;margin:0 auto 32px;padding:0 24px}
 #bncc-results .bncc-results-head{display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap}
 
+/* ── BNCC ABOUT STRIP ───────────────────────────────────── */
+.bncc-about-strip{max-width:960px;margin:0 auto 52px;padding:0 24px}
+.bncc-about-inner{display:grid;grid-template-columns:1fr 2fr;gap:32px;align-items:center;background:rgba(0,212,180,.04);border:1px solid var(--bncc-border);border-radius:20px;padding:28px 32px}
+.bncc-about-kicker{font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--bncc-teal);margin-bottom:6px}
+.bncc-about-title{font-family:'Syne',sans-serif;font-size:1.35rem;font-weight:800;color:var(--fg);margin-bottom:10px;line-height:1.2}
+.bncc-about-desc{font-size:.85rem;color:var(--muted);line-height:1.6;margin:0}
+.bncc-about-areas{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.bncc-about-area{padding:14px 16px;border-radius:14px;border:1px solid var(--bncc-border);display:flex;flex-direction:column;gap:6px;transition:border-color .2s}
+.bncc-about-area[data-color="purple"]{background:rgba(124,111,247,.06)}
+.bncc-about-area[data-color="blue"]{background:rgba(33,150,243,.06)}
+.bncc-about-area[data-color="amber"]{background:rgba(255,184,48,.06)}
+.bncc-about-area:hover[data-color="purple"]{border-color:rgba(124,111,247,.4)}
+.bncc-about-area:hover[data-color="blue"]{border-color:rgba(33,150,243,.4)}
+.bncc-about-area:hover[data-color="amber"]{border-color:rgba(255,184,48,.4)}
+.bncc-about-area-icon{font-size:1.4rem;line-height:1}
+.bncc-about-area-name{font-size:.82rem;font-weight:700;color:var(--fg)}
+.bncc-about-area-desc{font-size:.75rem;color:var(--muted);line-height:1.45}
+
 /* ── CONFIGURATION PANEL ─────────────────────────────────── */
 .bncc-cfg-wrap{padding:28px 24px 32px;background:rgba(0,212,180,.04);border:1px solid var(--bncc-border);border-radius:20px;display:flex;flex-direction:column;gap:24px}
 .bncc-cfg-back{align-self:flex-start;background:none;border:1px solid var(--bncc-border);color:var(--muted);font-size:.8rem;font-weight:600;padding:7px 14px;border-radius:8px;cursor:pointer;transition:all .2s}
@@ -612,6 +630,8 @@
   .bncc-gen-ideas-wrap{padding:18px 16px}
 }
 @media(max-width:780px){
+  .bncc-about-inner{grid-template-columns:1fr;gap:20px;padding:20px 18px}
+  .bncc-about-areas{grid-template-columns:1fr}
   .bncc-cfg-grid{grid-template-columns:1fr}
   .bncc-cfg-wrap{padding:20px 16px 24px}
   .bncc-search-box{margin:0 16px 40px;border-radius:16px;padding:16px 14px 18px}
