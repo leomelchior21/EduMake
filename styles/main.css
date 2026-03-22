@@ -289,6 +289,11 @@ h1{font-family:"Syne",sans-serif;font-size:clamp(2.1rem,5.5vw,3.9rem);font-weigh
 .manual-item li{color:var(--muted);font-size:.81rem;line-height:1.6;font-weight:300;margin-bottom:3px}
 .bncc-tags{display:flex;flex-wrap:wrap;gap:6px}
 .bncc-tag{padding:3px 9px;border-radius:6px;background:rgba(63,216,196,.09);border:1px solid rgba(63,216,196,.22);font-size:.7rem;color:var(--teal);font-family:var(--fd);font-weight:600}
+/* BNCC context banner — shown when coming from BNCC page */
+.bncc-context-banner{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:11px 16px;background:rgba(0,212,180,.07);border:1px solid rgba(0,212,180,.25);border-radius:12px;margin-bottom:4px}
+.bncc-ctx-pill{font-size:.65rem;font-weight:800;letter-spacing:.06em;background:rgba(0,212,180,.18);color:#3dd8c4;padding:3px 9px;border-radius:100px;border:1px solid rgba(0,212,180,.35);white-space:nowrap}
+.bncc-ctx-code{font-family:var(--fd);font-size:.88rem;font-weight:800;color:#3dd8c4;letter-spacing:.02em}
+.bncc-ctx-title{font-size:.78rem;color:var(--muted);font-weight:300;line-height:1.4}
 .err-card{text-align:center;padding:40px 20px}
 .err-ico{font-size:2rem;margin-bottom:12px}
 .err-card h3{font-size:.95rem;margin-bottom:7px}

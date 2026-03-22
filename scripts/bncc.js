@@ -705,7 +705,7 @@ async function bnccAplicar() {
   const area = document.getElementById('bncc-aplicar-area');
   const btn  = document.getElementById('bncc-aplicar-btn');
   area.classList.remove('hidden');
-  area.innerHTML = '<div class="bap-loading"><div class="bncc-spinner"></div><span>Criando 3 ideias para sua aula…</span></div>';
+  showLoading(area, 'Criando 3 ideias para sua aula', 'analisando o contexto da turma…');
   area.scrollIntoView({ behavior: 'smooth', block: 'start' });
   if (btn) { btn.disabled = true; btn.classList.add('loading'); }
 
@@ -811,7 +811,7 @@ function renderAplicarCards(data, ctx) {
         <div class="bap-deep-hint">Adicione contexto da sua turma (opcional):</div>
         <textarea class="bap-deep-textarea" id="bap-deep-ctx-${i}" rows="2" placeholder="Ex: 28 alunos, poucos computadores, 6º ano…"></textarea>
         <button class="bap-deep-go" onclick="bnccAprofundarGo(${i},'${encodeURIComponent(deepQuery)}')">
-          ✦ Gerar plano completo na página inicial
+          ✦ Quero um plano completo!
         </button>
       </div>
     </div>`;
@@ -838,6 +838,14 @@ function bnccAprofundarGo(idx, encodedQuery) {
   const ctx  = document.getElementById(`bap-deep-ctx-${idx}`)?.value.trim() || '';
   let q = decodeURIComponent(encodedQuery);
   if (ctx) q += `. Turma: ${ctx}`;
+  // store BNCC context for home page highlight
+  const code = _bcsSelectedCode || '';
+  if (code) {
+    const skill = BNCC_SKILLS.find(s => s.code === code);
+    window._bnccContextBadge = { code, title: skill?.title || '' };
+  } else {
+    window._bnccContextBadge = null;
+  }
   if (typeof showPage === 'function') showPage('home');
   if (typeof setNL === 'function') setNL(q);
   setTimeout(() => { if (typeof doSearch === 'function') doSearch(); }, 120);

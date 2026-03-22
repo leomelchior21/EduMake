@@ -1,4 +1,5 @@
 // ── UI STATE ───────────────────────────────────────────────
+// ── UI STATE ───────────────────────────────────────────────
 let currentMode = 'nl';
 let currentResultData = null;
 let currentModalTool = null;
@@ -147,6 +148,11 @@ function renderResult(data) {
   document.getElementById('rov-title').textContent='✦ Ideias para sua aula';
   document.getElementById('rov-sub').textContent=(data.query_understood||'')+(data.nivel?' · '+data.nivel:'');
   let h='<div class="ai-result">';
+  if (window._bnccContextBadge?.code) {
+    const b = window._bnccContextBadge;
+    h+=`<div class="bncc-context-banner"><span class="bncc-ctx-pill">🔵 BNCC</span><span class="bncc-ctx-code">${b.code}</span>${b.title?`<span class="bncc-ctx-title">— ${b.title}</span>`:''}</div>`;
+    window._bnccContextBadge = null;
+  }
 
   if (data.ideas?.length) {
     const toolsUsed = [...new Map(data.ideas.map(i=>[i.tool, i])).values()];

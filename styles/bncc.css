@@ -409,7 +409,7 @@
 
 /* ── VAMOS APLICAR! RESULT ───────────────────────────── */
 #bncc-aplicar-area{max-width:980px;margin:0 auto 56px;padding:0 24px}
-.bap-loading{display:flex;align-items:center;gap:12px;padding:48px;justify-content:center;color:var(--muted);font-size:.9rem}
+/* loading state handled by app.js showLoading() / ai-loading styles */
 .bap-error{padding:24px;text-align:center;color:#f87171;font-size:.9rem}
 .bap-header{text-align:center;margin-bottom:24px}
 .bap-header-title{font-family:var(--fd);font-size:1.15rem;font-weight:800;color:var(--text);letter-spacing:-.02em}
