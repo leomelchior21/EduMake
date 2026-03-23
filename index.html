@@ -42,6 +42,10 @@
   <button class="nbtn" onclick="showPage('home');toggleMob()">Início</button>
   <button class="nbtn" onclick="showPage('bncc');toggleMob()">🧠 BNCC Computação</button>
   <button class="ncta" onclick="showPage('tools');toggleMob()">Explore 418+ ferramentas</button>
+  <div class="mob-auth-sep"></div>
+  <button class="mob-auth-btn" id="mob-login-btn" onclick="openAuthModal('login');toggleMob()">Entrar na conta</button>
+  <button class="mob-auth-btn mob-plans-btn hidden" id="mob-plans-btn" onclick="openPlansModal();toggleMob()">📋 Meus Planos</button>
+  <button class="mob-auth-btn mob-out-btn hidden" id="mob-out-btn" onclick="authSignOut()">Sair</button>
 </div>
 
 <section id="home-page">

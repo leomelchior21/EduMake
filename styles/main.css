@@ -615,6 +615,13 @@ a.itool-chip:hover{background:rgba(124,111,247,.22);border-color:rgba(124,111,24
 .nav-dd-out{color:#f87171}
 .nav-dd-out:hover{background:rgba(248,113,113,.08);color:#f87171}
 
+/* ── MOBILE NAV AUTH ─────────────────────────────────────── */
+.mob-auth-sep{height:1px;background:var(--border);margin:8px 0}
+.mob-auth-btn{width:100%;padding:10px 14px;background:none;border:none;color:var(--muted);font-family:var(--fb);font-size:.88rem;text-align:left;cursor:pointer;border-radius:8px;transition:all .15s}
+.mob-auth-btn:hover{background:var(--surface2);color:var(--text)}
+.mob-out-btn{color:#f87171}
+.mob-out-btn:hover{background:rgba(248,113,113,.08);color:#f87171}
+
 /* ── AUTH MODAL ──────────────────────────────────────────── */
 .auth-overlay{position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px}
 .auth-modal{background:#0f0f1c;border:1px solid var(--border2);border-radius:var(--radius);padding:32px 28px;width:100%;max-width:400px;position:relative;box-shadow:0 24px 72px rgba(0,0,0,.65)}
@@ -685,6 +692,17 @@ a.itool-chip:hover{background:rgba(124,111,247,.22);border-color:rgba(124,111,24
   .nav-r .ncta{display:none}
   .nav-login-btn{display:none}
   .nav-user-wrap{display:none}
+  /* Auth modal — full screen on mobile */
+  .auth-overlay{padding:0;align-items:flex-end}
+  .auth-modal{border-radius:var(--radius) var(--radius) 0 0;max-width:100%;padding:28px 20px 32px}
+  /* Plans panel — full width on mobile */
+  .plans-panel{max-width:100%}
+  /* Ranking widget — compact on mobile */
+  .ranking-widget{padding:0 14px}
+  .rank-bar-wrap{display:none}
+  .rank-item{grid-template-columns:24px 1fr auto}
+  /* Deep save button — full width on mobile */
+  .deep-save-btn{width:100%;justify-content:center}
   .hbg{display:flex}
   #home-page{padding:72px 14px 36px}
   h1{font-size:1.8rem;letter-spacing:-.02em}

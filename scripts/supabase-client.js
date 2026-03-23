@@ -1,7 +1,7 @@
 // ── SUPABASE CONFIG ──────────────────────────────────────────
 // ⚠️  Substitua pelos valores do seu projeto em supabase.com
-const SUPABASE_URL  = 'https://SEU_PROJETO.supabase.co';
-const SUPABASE_ANON = 'SUA_ANON_KEY';
+const SUPABASE_URL  = 'https://imodobxbarcsjylvitxt.supabase.co';
+const SUPABASE_ANON = 'sb_publishable_jkHrLZkNR4Zh3XtHEgpTMA_JnMMpG6w';
 
 const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 let _sbUser = null;
@@ -24,6 +24,7 @@ _sb.auth.onAuthStateChange((event, session) => {
 // ── NAV / AUTH UI ─────────────────────────────────────────────
 function _updateAuthUI() {
   const loggedIn = !!_sbUser;
+  // Desktop nav
   document.getElementById('nav-login-btn')?.classList.toggle('hidden', loggedIn);
   document.getElementById('nav-user-wrap')?.classList.toggle('hidden', !loggedIn);
   const lbl = document.getElementById('nav-user-label');
@@ -31,6 +32,10 @@ function _updateAuthUI() {
     const name = _sbUser.user_metadata?.name || _sbUser.email?.split('@')[0] || 'Professor';
     lbl.textContent = name.length > 16 ? name.slice(0, 16) + '…' : name;
   }
+  // Mobile nav
+  document.getElementById('mob-login-btn')?.classList.toggle('hidden', loggedIn);
+  document.getElementById('mob-plans-btn')?.classList.toggle('hidden', !loggedIn);
+  document.getElementById('mob-out-btn')?.classList.toggle('hidden', !loggedIn);
 }
 
 function toggleUserMenu() {
