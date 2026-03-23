@@ -298,6 +298,8 @@ h1{font-family:"Syne",sans-serif;font-size:clamp(2.1rem,5.5vw,3.9rem);font-weigh
 .err-ico{font-size:2rem;margin-bottom:12px}
 .err-card h3{font-size:.95rem;margin-bottom:7px}
 .err-card p{color:var(--muted);font-size:.83rem}
+#deep-page{min-height:100vh;padding:80px 0 80px}
+.deep-page-wrap{max-width:860px;margin:0 auto;padding:0 24px}
 #tools-page{padding:80px 24px 60px;min-height:100vh}
 .tools-header{max-width:1100px;margin:0 auto 26px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
 .tools-header h2{font-family:var(--fd);font-size:1.5rem;font-weight:800;letter-spacing:-.02em}
@@ -657,6 +659,7 @@ a.itool-chip:hover{background:rgba(124,111,247,.22);border-color:rgba(124,111,24
 .deep-print-btn:hover{background:rgba(0,212,180,.22);border-color:rgba(0,212,180,.5)}
 @media print{
   .canvas,nav,.mob-nav,#notif,#home-page,#tools-page,#bncc-page,#modal-wrap,.deep-back,.deep-print-btn,.mclose,.rov-head{display:none!important}
+  #deep-page,#deep-page-cont,.deep-page-wrap{display:block!important;padding:0!important;margin:0!important}
   #rov{position:static!important;opacity:1!important;background:white!important;color:black!important;box-shadow:none!important}
   .rov-body{padding:0!important;max-width:100%!important}
   .deep-hero{background:#f5f5f5!important;border:1px solid #ccc!important}

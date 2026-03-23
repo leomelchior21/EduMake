@@ -631,8 +631,9 @@ function showPage(p) {
   document.getElementById('home-page').classList.toggle('hidden', p!=='home');
   document.getElementById('tools-page').classList.toggle('hidden', p!=='tools');
   document.getElementById('bncc-page').classList.toggle('hidden', p!=='bncc');
+  document.getElementById('deep-page').classList.toggle('hidden', p!=='deep');
   document.getElementById('nb-home').classList.toggle('active', p==='home');
-  document.getElementById('nb-bncc').classList.toggle('active', p==='bncc');
+  document.getElementById('nb-bncc').classList.toggle('active', p==='bncc'||p==='deep');
   if (p==='tools') buildTools();
   if (p==='bncc') initBncc();
   window.scrollTo(0,0);

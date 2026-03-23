@@ -972,10 +972,11 @@ async function bnccRunFromConfig(idx) {
     bncc_codes: d.bncc ? [d.bncc] : []
   };
 
-  const deepView = document.getElementById('bap-deep-view');
+  const deepCont = document.getElementById('deep-page-cont');
+  showPage('deep');
   const opts = {
-    targetEl:         deepView,
-    backFn:           `bnccChooseIdea(${idx})`,
+    targetEl:         deepCont,
+    backFn:           `showPage('bncc');bnccChooseIdea(${idx})`,
     backLabel:        '← Voltar à configuração',
     bnccCode:         d.bncc || '',
     queryCtx:         ctxParts.join('. '),
