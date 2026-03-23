@@ -4,6 +4,7 @@ let currentMode = 'nl';
 let currentResultData = null;
 let currentModalTool = null;
 let currentDeepeningIdea = null;
+let currentDeepeningDeep = null;
 let currentFicha = null;
 let _loadingTimer = null;
 const _searchCache = new Map();
@@ -282,7 +283,10 @@ FORMATO EXATO (copie esta estrutura exatamente):
     const content = parsed.choices?.[0]?.message?.content || '';
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('Sem JSON na resposta');
-    renderDeepening(idea, JSON.parse(jsonMatch[0]), opts);
+    const deepData = JSON.parse(jsonMatch[0]);
+    currentDeepeningDeep = deepData;
+    if (typeof trackTool === 'function') trackTool(idea.tool);
+    renderDeepening(idea, deepData, opts);
   } catch(e) {
     const _backFn = opts.backFn || 'renderResult(currentResultData)';
     rcont.innerHTML=`<div class="err-card"><div class="err-ico">⚠️</div><h3>Erro ao aprofundar</h3><p>${e.message}</p><div style="text-align:center;margin-top:16px"><button class="mclose" style="width:auto;padding:9px 20px" onclick="${_backFn}">← Voltar</button></div></div>`;
@@ -305,8 +309,15 @@ function renderDeepening(idea, deep, opts = {}) {
     h+=`<div class="bncc-context-banner" style="margin-bottom:16px"><span class="bncc-ctx-pill">🔵 BNCC</span><span class="bncc-ctx-code">${opts.bnccCode}</span>${_bnccSkill?`<span class="bncc-ctx-title">— ${_bnccSkill.title}</span>`:''}</div>`;
   }
 
-  // ── BACK + PDF
-  h+=`<div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap"><div class="deep-back" onclick="${backFn}">${backLabel}</div><button class="deep-print-btn" onclick="exportToPDF()">⬇ Exportar PDF</button></div>`;
+  // ── BACK + PDF + SAVE
+  h+=`<div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
+    <div class="deep-back" onclick="${backFn}">${backLabel}</div>
+    <button class="deep-print-btn" onclick="exportToPDF()">⬇ Exportar PDF</button>
+    <button class="deep-save-btn" id="deep-save-btn" onclick="saveCurrentPlan()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      Salvar plano
+    </button>
+  </div>`;
 
   // ── HERO
   h+=`<div class="deep-hero">
@@ -627,6 +638,12 @@ function closeModal() {
 }
 
 // ── NAV ─────────────────────────────────────────────────
+function saveCurrentPlan() {
+  if (!currentDeepeningIdea || !currentDeepeningDeep) { showNotif('Nada para salvar ainda.'); return; }
+  if (typeof savePlan === 'function') savePlan(currentDeepeningIdea, currentDeepeningDeep, window._currentDeepOpts?.bnccCode || '');
+  else { showNotif('Configure o Supabase para salvar planos.'); }
+}
+
 function showPage(p) {
   document.getElementById('home-page').classList.toggle('hidden', p!=='home');
   document.getElementById('tools-page').classList.toggle('hidden', p!=='tools');
@@ -634,8 +651,9 @@ function showPage(p) {
   document.getElementById('deep-page').classList.toggle('hidden', p!=='deep');
   document.getElementById('nb-home').classList.toggle('active', p==='home');
   document.getElementById('nb-bncc').classList.toggle('active', p==='bncc'||p==='deep');
-  if (p==='tools') buildTools();
-  if (p==='bncc') initBncc();
+  if (p==='tools') { buildTools(); if (typeof renderRankingWidget==='function') renderRankingWidget('ranking-tools'); }
+  if (p==='bncc')  { initBncc();  if (typeof renderRankingWidget==='function') renderRankingWidget('ranking-bncc'); }
+  if (p==='home')  { if (typeof renderRankingWidget==='function') renderRankingWidget('ranking-home'); }
   window.scrollTo(0,0);
 }
 

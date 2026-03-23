@@ -24,6 +24,17 @@
     <button class="nbtn active" id="nb-home" onclick="showPage('home')">Início</button>
     <button class="nbtn" id="nb-bncc" onclick="showPage('bncc')" style="display:flex;align-items:center;gap:6px"><span style="font-size:.75rem">🧠</span>BNCC Computação</button>
     <button class="ncta" onclick="showPage('tools')">Explore 418+ ferramentas</button>
+    <button class="nav-login-btn" id="nav-login-btn" onclick="openAuthModal('login')">Entrar</button>
+    <div class="nav-user-wrap hidden" id="nav-user-wrap">
+      <button class="nav-user-btn" onclick="toggleUserMenu()">
+        <span class="nav-user-ico">👤</span><span id="nav-user-label">Professor</span>
+        <svg viewBox="0 0 10 6" fill="none" width="9" height="9"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+      <div class="nav-user-dd hidden" id="nav-user-dd">
+        <button class="nav-dd-item" onclick="openPlansModal()">📋 Meus Planos</button>
+        <button class="nav-dd-item nav-dd-out" onclick="authSignOut()">Sair</button>
+      </div>
+    </div>
     <button class="hbg" id="hbg" onclick="toggleMob()"><span></span><span></span><span></span></button>
   </div>
 </nav>
@@ -70,6 +81,7 @@
         <span>Buscar ferramentas</span>
       </button>
     </div>
+    <div class="ranking-widget" id="ranking-home"></div>
     <!-- HOW IT WORKS — full-width beam wrapper -->
     <div class="how-wrap">
     <div class="how-beam" aria-hidden="true">
@@ -246,6 +258,7 @@
       <button class="ts-clear" id="ts-clear" onclick="clearToolFilters()" style="display:none">✕ Limpar filtros</button>
     </div>
   </div>
+  <div class="ranking-widget ranking-widget--tools" id="ranking-tools"></div>
   <div class="explore-filters" id="explore-filters">
     <div class="ef-dropdown-wrap">
       <label class="ef-dropdown-lbl">📚 Disciplina</label>
@@ -342,6 +355,7 @@
   </div>
 
   <!-- APLICAR RESULT -->
+  <div class="ranking-widget ranking-widget--bncc" id="ranking-bncc"></div>
   <div id="bncc-aplicar-area" class="hidden"></div>
 
   <!-- SKILL RESULT -->
@@ -497,16 +511,56 @@
 
 </section>
 
+<!-- ── AUTH MODAL ── -->
+<div class="auth-overlay hidden" id="auth-overlay" onclick="if(event.target===this)closeAuthModal()">
+  <div class="auth-modal">
+    <button class="auth-close" onclick="closeAuthModal()">✕</button>
+    <div class="auth-logo"><div class="logo-dot"></div>EduMake</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="auth-tab-login" onclick="switchAuthTab('login')">Entrar</button>
+      <button class="auth-tab" id="auth-tab-signup" onclick="switchAuthTab('signup')">Criar conta</button>
+    </div>
+    <!-- LOGIN -->
+    <div id="auth-pnl-login">
+      <div class="auth-field"><label>E-mail</label><input type="email" id="auth-login-email" placeholder="seu@email.com" autocomplete="email"/></div>
+      <div class="auth-field"><label>Senha</label><input type="password" id="auth-login-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')authLogin()"/></div>
+      <p class="auth-err" id="auth-err"></p>
+      <button class="auth-submit" id="auth-login-btn" onclick="authLogin()">Entrar</button>
+    </div>
+    <!-- SIGNUP -->
+    <div id="auth-pnl-signup" class="hidden">
+      <div class="auth-field"><label>Seu nome</label><input type="text" id="auth-su-name" placeholder="Como podemos te chamar?"/></div>
+      <div class="auth-field"><label>E-mail</label><input type="email" id="auth-su-email" placeholder="seu@email.com"/></div>
+      <div class="auth-field"><label>Senha</label><input type="password" id="auth-su-pass" placeholder="Mín. 6 caracteres" onkeydown="if(event.key==='Enter')authSignup()"/></div>
+      <button class="auth-submit" id="auth-signup-btn" onclick="authSignup()">Criar conta grátis</button>
+    </div>
+    <p class="auth-terms">Plataforma gratuita para professores brasileiros 🇧🇷</p>
+  </div>
+</div>
+
+<!-- ── PLANS PANEL ── -->
+<div class="plans-overlay hidden" id="plans-overlay" onclick="if(event.target===this)closePlansModal()">
+  <div class="plans-panel">
+    <div class="plans-head">
+      <h3>📋 Meus Planos</h3>
+      <button class="plans-close" onclick="closePlansModal()">✕</button>
+    </div>
+    <div class="plans-body" id="plans-body"></div>
+  </div>
+</div>
+
 <div id="notif"></div>
 <footer><span>EduMake</span> — 418+ ferramentas · Educação Infantil ao Ensino Médio · Alinhado à BNCC</footer>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="scripts/data/tools.js"></script>
 <script src="scripts/data/bncc-skills.js"></script>
 <script src="scripts/config.js"></script>
 <script src="scripts/search.js"></script>
 <script src="scripts/bncc.js"></script>
 <script src="scripts/print.js"></script>
+<script src="scripts/supabase-client.js"></script>
 <script src="scripts/app.js"></script>
 </body>
 </html>
