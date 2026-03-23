@@ -116,6 +116,7 @@ function _authErrPt(msg) {
   if (msg.includes('already registered')) return 'Este usuário já existe. Tente outro nome.';
   if (msg.includes('Password should be')) return 'Senha deve ter ao menos 6 caracteres.';
   if (msg.includes('Email not confirmed')) return 'Usuário ou senha incorretos.';
+  if (msg.includes('rate limit')) return 'Muitas tentativas. Aguarde 1 minuto e tente novamente.';
   return msg;
 }
 
