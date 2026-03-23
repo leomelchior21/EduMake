@@ -67,32 +67,40 @@ function switchAuthTab(t) {
   document.getElementById('auth-err').textContent = '';
 }
 
+function _userToEmail(username) {
+  // Convert username to internal email — never shown to the user
+  return username.toLowerCase().replace(/\s+/g, '.').replace(/[^a-z0-9._-]/g, '') + '@edumake.internal';
+}
+
 async function authLogin() {
-  const email = document.getElementById('auth-login-email').value.trim();
-  const pass  = document.getElementById('auth-login-pass').value;
-  const btn   = document.getElementById('auth-login-btn');
-  const errEl = document.getElementById('auth-err');
+  const username = document.getElementById('auth-login-user').value.trim();
+  const pass     = document.getElementById('auth-login-pass').value;
+  const btn      = document.getElementById('auth-login-btn');
+  const errEl    = document.getElementById('auth-err');
+  if (!username) { errEl.textContent = 'Digite seu usuário.'; errEl.style.color = '#f87171'; return; }
   btn.disabled = true; btn.textContent = 'Entrando…';
-  const { error } = await _sb.auth.signInWithPassword({ email, password: pass });
+  const { error } = await _sb.auth.signInWithPassword({ email: _userToEmail(username), password: pass });
   btn.disabled = false; btn.textContent = 'Entrar';
   if (error) { errEl.textContent = _authErrPt(error.message); errEl.style.color = '#f87171'; }
 }
 
 async function authSignup() {
-  const name  = document.getElementById('auth-su-name').value.trim();
-  const email = document.getElementById('auth-su-email').value.trim();
-  const pass  = document.getElementById('auth-su-pass').value;
-  const btn   = document.getElementById('auth-signup-btn');
-  const errEl = document.getElementById('auth-err');
+  const name     = document.getElementById('auth-su-name').value.trim();
+  const username = document.getElementById('auth-su-user').value.trim();
+  const pass     = document.getElementById('auth-su-pass').value;
+  const btn      = document.getElementById('auth-signup-btn');
+  const errEl    = document.getElementById('auth-err');
+  if (!username) { errEl.textContent = 'Escolha um nome de usuário.'; errEl.style.color = '#f87171'; return; }
+  if (pass.length < 6) { errEl.textContent = 'Senha deve ter ao menos 6 caracteres.'; errEl.style.color = '#f87171'; return; }
   btn.disabled = true; btn.textContent = 'Criando conta…';
-  const { error } = await _sb.auth.signUp({ email, password: pass, options: { data: { name } } });
-  btn.disabled = false; btn.textContent = 'Criar conta';
-  if (error) {
-    errEl.textContent = _authErrPt(error.message); errEl.style.color = '#f87171';
-  } else {
-    errEl.textContent = '✓ Conta criada! Verifique seu e-mail para confirmar.';
-    errEl.style.color = '#4ade80';
-  }
+  const { error } = await _sb.auth.signUp({
+    email:    _userToEmail(username),
+    password: pass,
+    options:  { data: { name: name || username } }
+  });
+  btn.disabled = false; btn.textContent = 'Criar conta grátis';
+  if (error) { errEl.textContent = _authErrPt(error.message); errEl.style.color = '#f87171'; }
+  else { errEl.textContent = '✓ Conta criada! Entrando…'; errEl.style.color = '#4ade80'; }
 }
 
 async function authSignOut() {
@@ -104,10 +112,10 @@ async function authSignOut() {
 }
 
 function _authErrPt(msg) {
-  if (msg.includes('Invalid login')) return 'E-mail ou senha incorretos.';
-  if (msg.includes('already registered')) return 'Este e-mail já tem uma conta.';
+  if (msg.includes('Invalid login')) return 'Usuário ou senha incorretos.';
+  if (msg.includes('already registered')) return 'Este usuário já existe. Tente outro nome.';
   if (msg.includes('Password should be')) return 'Senha deve ter ao menos 6 caracteres.';
-  if (msg.includes('Email not confirmed')) return 'Confirme seu e-mail antes de entrar.';
+  if (msg.includes('Email not confirmed')) return 'Usuário ou senha incorretos.';
   return msg;
 }
 

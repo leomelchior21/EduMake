@@ -639,6 +639,7 @@ a.itool-chip:hover{background:rgba(124,111,247,.22);border-color:rgba(124,111,24
 .auth-submit{width:100%;padding:12px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--accent),#5a52d5);border:none;color:#fff;font-family:var(--fd);font-size:.92rem;font-weight:700;cursor:pointer;transition:opacity .2s;margin-top:2px}
 .auth-submit:disabled{opacity:.55;cursor:not-allowed}
 .auth-terms{font-size:.66rem;color:var(--dim);margin-top:14px;text-align:center;line-height:1.5}
+.auth-privacy{margin-top:14px;padding:10px 12px;background:rgba(61,216,196,.06);border:1px solid rgba(61,216,196,.15);border-radius:9px;font-size:.72rem;color:var(--dim);line-height:1.55;text-align:center}
 
 /* ── PLANS PANEL ─────────────────────────────────────────── */
 .plans-overlay{position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.5);backdrop-filter:blur(4px)}
